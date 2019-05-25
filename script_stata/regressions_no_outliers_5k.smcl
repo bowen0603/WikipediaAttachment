@@ -1,0 +1,1352 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}/Users/bobo/Documents/wikipedia_user_dropout/script_stata/regressions_no_outliers_5k.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}19 Apr 2016, 17:13:52
+
+{com}. do "/Users/bobo/Documents/wikipedia_user_dropout/script_stata/regressions_no_outliers.do"
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. import delimited "/Users/bobo/Documents/wikipedia_user_dropout/data/analysis_data/results_dvs_cvs_ivs_encoded_final.csv", encoding(ISO-8859-1)
+{res}{text}(21 vars, 271,181 obs)
+
+{com}. 
+. * wikiproject is self encoded in the data // encode wikiproject, gen(nwikiproject)
+. xtset nwikiproject
+{txt}{col 8}panel variable:  {res}nwikiproject (unbalanced)
+{txt}
+{com}. 
+. ** correlation between IVs
+. cor iv_cos_sim iv_amount_talked iv_amount_talking iv_max_talked iv_max_talking iv_member_talked iv_member_talking cv_prior_edits cv_wp_age cv_wp_member_size cv_user_tenure cv_wp_art_size cv_workload
+{txt}(obs=271,181)
+
+             {c |} iv_cos~m iv_amo~d iv_amo~g iv_max~d iv_max~g iv_mem~d iv_mem~g cv_pri~s cv_wp~ge
+{hline 13}{c +}{hline 81}
+  iv_cos_sim {c |}{res}   1.0000
+{txt}iv_amount_~d {c |}{res}   0.0045   1.0000
+{txt}iv_amount_~g {c |}{res}   0.0076   0.4587   1.0000
+{txt}iv_max_tal~d {c |}{res}   0.0132   0.7732   0.3436   1.0000
+{txt}iv_max_tal~g {c |}{res}   0.0177   0.3364   0.8160   0.3679   1.0000
+{txt}iv_member_~d {c |}{res}  -0.0022   0.5881   0.5808   0.2892   0.2950   1.0000
+{txt}iv_member_~g {c |}{res}  -0.0105   0.4039   0.6800   0.2112   0.3213   0.8029   1.0000
+{txt}cv_prior_e~s {c |}{res}  -0.0057   0.1848   0.2829   0.1551   0.2170   0.2900   0.3147   1.0000
+   {txt}cv_wp_age {c |}{res}  -0.0447   0.1125   0.1649   0.0746   0.1031   0.2585   0.2560   0.1171   1.0000
+{txt}cv_wp_memb~e {c |}{res}  -0.0588   0.0939   0.1414   0.0388   0.0565   0.2623   0.2552  -0.0343   0.5201
+{txt}cv_user_te~e {c |}{res}   0.0351   0.1435   0.1963   0.0984   0.1382   0.3063   0.2899   0.3696   0.3644
+{txt}cv_wp_art_~e {c |}{res}  -0.0219   0.0280   0.0446   0.0096   0.0161   0.0895   0.0834  -0.0325   0.1623
+ {txt}cv_workload {c |}{res}  -0.0346   0.0497   0.0706   0.0437   0.0564   0.0955   0.0931   0.2643   0.0715
+
+             {txt}{c |} c~r_size cv_use~e c~t_size cv_wor~d
+{hline 13}{c +}{hline 36}
+cv_wp_memb~e {c |}{res}   1.0000
+{txt}cv_user_te~e {c |}{res}   0.0486   1.0000
+{txt}cv_wp_art_~e {c |}{res}   0.4149  -0.0306   1.0000
+ {txt}cv_workload {c |}{res}  -0.0809   0.2861  -0.0440   1.0000
+
+{txt}
+{com}. 
+. ** log transform all the standarize variables except the cos_sim
+. gen ln_cv_wp_age = ln(cv_wp_age+1) / ln(2)
+{txt}
+{com}. gen ln_cv_workload = ln(cv_workload+1) / ln(2)
+{txt}
+{com}. gen ln_cv_wp_member_size = ln(cv_wp_member_size+1) / ln(2)
+{txt}
+{com}. gen ln_cv_wp_art_size = ln(cv_wp_art_size+1) / ln(2)
+{txt}
+{com}. gen ln_cv_user_tenure = ln(cv_user_tenure+1) / ln(2)
+{txt}
+{com}. gen ln_cv_prior_edits = ln(cv_prior_edits+1) / ln(2)
+{txt}
+{com}. 
+. gen ln_iv_amount_talked = ln(iv_amount_talked+1) / ln(2)
+{txt}
+{com}. gen ln_iv_amount_talking = ln(iv_amount_talking+1) / ln(2)
+{txt}
+{com}. gen ln_iv_member_talked = ln(iv_member_talked+1) / ln(2)
+{txt}
+{com}. gen ln_iv_member_talking = ln(iv_member_talking+1) / ln(2)
+{txt}
+{com}. gen ln_iv_max_talked = ln(iv_max_talked+1) / ln(2)
+{txt}
+{com}. gen ln_iv_max_talking = ln(iv_max_talking+1) / ln(2)
+{txt}
+{com}. 
+. ** standarize all the control and independent variables
+. egen lns_cv_wp_age = std(ln_cv_wp_age)
+{txt}
+{com}. egen lns_cv_workload = std(ln_cv_workload)
+{txt}
+{com}. egen lns_cv_wp_member_size = std(ln_cv_wp_member_size)
+{txt}
+{com}. egen lns_cv_wp_art_size = std(ln_cv_wp_art_size)
+{txt}
+{com}. egen lns_cv_user_tenure = std(ln_cv_user_tenure)
+{txt}
+{com}. egen lns_cv_prior_edits = std(ln_cv_prior_edits)
+{txt}
+{com}. 
+. egen s_iv_cos_sim = std(iv_cos_sim)
+{txt}
+{com}. 
+. egen lns_iv_amount_talked = std(ln_iv_amount_talked)
+{txt}
+{com}. egen lns_iv_amount_talking = std(ln_iv_amount_talking)
+{txt}
+{com}. egen lns_iv_member_talked = std(ln_iv_member_talked)
+{txt}
+{com}. egen lns_iv_member_talking = std(ln_iv_member_talking)
+{txt}
+{com}. egen lns_iv_max_talked = std(ln_iv_max_talked)
+{txt}
+{com}. egen lns_iv_max_talking = std(ln_iv_max_talking)
+{txt}
+{com}. 
+. ** regression on control variables
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits, irr
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1.217e+08}  
+Iteration 1:{space 3}log likelihood = {res:-1.217e+08}  
+Iteration 2:{space 3}log likelihood = {res:-1.217e+08}  
+Iteration 3:{space 3}log likelihood = {res:-1.217e+08}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -62331629}  
+Iteration 1:{space 3}log likelihood = {res:-1219853.7}  
+Iteration 2:{space 3}log likelihood = {res:-1218434.2}  
+Iteration 3:{space 3}log likelihood = {res:-1218430.5}  
+Iteration 4:{space 3}log likelihood = {res:-1218430.5}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1218430.5}  
+Iteration 1:{space 3}log likelihood = {res:  -1178293}  
+Iteration 2:{space 3}log likelihood = {res:-1172483.1}  
+Iteration 3:{space 3}log likelihood = {res:-1172460.8}  
+Iteration 4:{space 3}log likelihood = {res:-1172460.8}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -45000475}  
+Iteration 1:{space 3}log likelihood = {res:  -2557271}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-1633875.1}  
+Iteration 3:{space 3}log likelihood = {res:-1304201.5}  (not concave)
+Iteration 4:{space 3}log likelihood = {res:-1203687.8}  (not concave)
+Iteration 5:{space 3}log likelihood = {res:-1158907.7}  
+Iteration 6:{space 3}log likelihood = {res:-1158557.2}  
+Iteration 7:{space 3}log likelihood = {res:-1158271.8}  
+Iteration 8:{space 3}log likelihood = {res:-1158269.6}  
+Iteration 9:{space 3}log likelihood = {res:-1158269.6}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,181
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}6{txt}){col 67}={col 70}{res} 49877.08
+{txt}Log likelihood  = {res}-1158269.6{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_productivity{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8875032{col 35}{space 2} .0036213{col 46}{space 1}  -29.25{col 55}{space 3}0.000{col 63}{space 4} .8804339{col 76}{space 3} .8946292
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .5894129{col 35}{space 2}  .002262{col 46}{space 1} -137.75{col 55}{space 3}0.000{col 63}{space 4} .5849961{col 76}{space 3}  .593863
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .9592069{col 35}{space 2} .0046285{col 46}{space 1}   -8.63{col 55}{space 3}0.000{col 63}{space 4}  .950178{col 76}{space 3} .9683215
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.392274{col 35}{space 2} .0057679{col 46}{space 1}   79.88{col 55}{space 3}0.000{col 63}{space 4} 1.381015{col 76}{space 3} 1.403625
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .8732934{col 35}{space 2} .0030861{col 46}{space 1}  -38.34{col 55}{space 3}0.000{col 63}{space 4} .8672656{col 76}{space 3} .8793631
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.349164{col 35}{space 2} .0111394{col 46}{space 1}  180.11{col 55}{space 3}0.000{col 63}{space 4} 2.327432{col 76}{space 3} 2.371099
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1653805{col 35}{space 2} .0004831{col 46}{space 1} -616.04{col 55}{space 3}0.000{col 63}{space 4} .1644364{col 76}{space 3} .1663301
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-1.162179{col 35}{space 2} .0357976{col 63}{space 4}-1.232341{col 76}{space 3}-1.092017
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 2.330763{col 35}{space 2} .0894056{col 63}{space 4} 2.155532{col 76}{space 3} 2.505995
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2}  .312804{col 35}{space 2} .0111976{col 63}{space 4} .2916092{col 76}{space 3} .3355392
+{txt}                    s {c |}{col 23}{res}{space 2} 10.28579{col 35}{space 2} .9196066{col 63}{space 4} 8.632477{col 76}{space 3} 12.25575
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}2.8e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits, irr
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-6901556.3}  
+Iteration 1:{space 3}log likelihood = {res:-6899187.2}  
+Iteration 2:{space 3}log likelihood = {res:-6899185.2}  
+Iteration 3:{space 3}log likelihood = {res:-6899185.2}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:  -4049865}  
+Iteration 1:{space 3}log likelihood = {res:-868766.08}  
+Iteration 2:{space 3}log likelihood = {res:-758346.89}  
+Iteration 3:{space 3}log likelihood = {res:-758298.67}  
+Iteration 4:{space 3}log likelihood = {res:-758298.67}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-758298.67}  
+Iteration 1:{space 3}log likelihood = {res:-720246.13}  
+Iteration 2:{space 3}log likelihood = {res:-711492.64}  
+Iteration 3:{space 3}log likelihood = {res:-711427.84}  
+Iteration 4:{space 3}log likelihood = {res:-711427.82}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2884638.6}  
+Iteration 1:{space 3}log likelihood = {res:-1014274.4}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-736286.72}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:   -710503}  
+Iteration 4:{space 3}log likelihood = {res:-708509.76}  
+Iteration 5:{space 3}log likelihood = {res:-706013.49}  (not concave)
+Iteration 6:{space 3}log likelihood = {res:-704867.72}  
+Iteration 7:{space 3}log likelihood = {res:-704855.53}  
+Iteration 8:{space 3}log likelihood = {res:-704855.44}  
+Iteration 9:{space 3}log likelihood = {res:-704855.44}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,181
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}6{txt}){col 67}={col 70}{res} 79886.05
+{txt}Log likelihood  = {res}-704855.44{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}     dv_communication{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8844656{col 35}{space 2} .0040871{col 46}{space 1}  -26.57{col 55}{space 3}0.000{col 63}{space 4} .8764911{col 76}{space 3} .8925126
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9873131{col 35}{space 2} .0037236{col 46}{space 1}   -3.39{col 55}{space 3}0.001{col 63}{space 4}  .980042{col 76}{space 3} .9946382
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} 1.445421{col 35}{space 2} .0073067{col 46}{space 1}   72.88{col 55}{space 3}0.000{col 63}{space 4} 1.431171{col 76}{space 3} 1.459813
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} .9784342{col 35}{space 2} .0032859{col 46}{space 1}   -6.49{col 55}{space 3}0.000{col 63}{space 4} .9720152{col 76}{space 3} .9848956
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .6848024{col 35}{space 2} .0029512{col 46}{space 1}  -87.86{col 55}{space 3}0.000{col 63}{space 4} .6790426{col 76}{space 3} .6906111
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 3.152667{col 35}{space 2} .0180952{col 46}{space 1}  200.06{col 55}{space 3}0.000{col 63}{space 4}   3.1174{col 76}{space 3} 3.188334
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1544754{col 35}{space 2} .0005467{col 46}{space 1} -527.70{col 55}{space 3}0.000{col 63}{space 4} .1534075{col 76}{space 3} .1555507
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} .5470739{col 35}{space 2} .0470099{col 63}{space 4} .4549362{col 76}{space 3} .6392116
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 3.769309{col 35}{space 2} .0638903{col 63}{space 4} 3.644086{col 76}{space 3} 3.894532
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 1.728189{col 35}{space 2}  .081242{col 63}{space 4} 1.576073{col 76}{space 3} 1.894986
+{txt}                    s {c |}{col 23}{res}{space 2} 43.35009{col 35}{space 2} 2.769652{col 63}{space 4}  38.2478{col 76}{space 3} 49.13304
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.3e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits, irr
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -35277969}  
+Iteration 1:{space 3}log likelihood = {res: -35269130}  
+Iteration 2:{space 3}log likelihood = {res: -35269126}  
+Iteration 3:{space 3}log likelihood = {res: -35269126}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -14613670}  
+Iteration 1:{space 3}log likelihood = {res:-844455.17}  
+Iteration 2:{space 3}log likelihood = {res:-826717.98}  
+Iteration 3:{space 3}log likelihood = {res: -824440.2}  
+Iteration 4:{space 3}log likelihood = {res:   -824436}  
+Iteration 5:{space 3}log likelihood = {res:   -824436}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:   -824436}  
+Iteration 1:{space 3}log likelihood = {res:-796786.48}  
+Iteration 2:{space 3}log likelihood = {res:-793266.56}  
+Iteration 3:{space 3}log likelihood = {res:-793255.28}  
+Iteration 4:{space 3}log likelihood = {res:-793255.28}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -11388391}  
+Iteration 1:{space 3}log likelihood = {res:-1291110.4}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-896125.48}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-787552.91}  
+Iteration 4:{space 3}log likelihood = {res:-784448.23}  
+Iteration 5:{space 3}log likelihood = {res:-784242.91}  
+Iteration 6:{space 3}log likelihood = {res:-784196.64}  
+Iteration 7:{space 3}log likelihood = {res: -784196.6}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,181
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}6{txt}){col 67}={col 70}{res} 33205.39
+{txt}Log likelihood  = {res} -784196.6{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         dv_work_comm{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8362631{col 35}{space 2} .0039664{col 46}{space 1}  -37.70{col 55}{space 3}0.000{col 63}{space 4} .8285251{col 76}{space 3} .8440733
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2}   .67996{col 35}{space 2} .0029691{col 46}{space 1}  -88.33{col 55}{space 3}0.000{col 63}{space 4} .6741655{col 76}{space 3} .6858043
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .9836027{col 35}{space 2} .0055421{col 46}{space 1}   -2.93{col 55}{space 3}0.003{col 63}{space 4} .9728002{col 76}{space 3} .9945252
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.386569{col 35}{space 2} .0069007{col 46}{space 1}   65.67{col 55}{space 3}0.000{col 63}{space 4} 1.373109{col 76}{space 3}  1.40016
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2}  .868809{col 35}{space 2} .0036619{col 46}{space 1}  -33.37{col 55}{space 3}0.000{col 63}{space 4} .8616614{col 76}{space 3} .8760159
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.168043{col 35}{space 2} .0119688{col 46}{space 1}  140.17{col 55}{space 3}0.000{col 63}{space 4} 2.144711{col 76}{space 3} 2.191629
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1184094{col 35}{space 2}  .000421{col 46}{space 1} -600.14{col 55}{space 3}0.000{col 63}{space 4} .1175872{col 76}{space 3} .1192374
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.9422971{col 35}{space 2} .0382597{col 63}{space 4}-1.017285{col 76}{space 3}-.8673095
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 2.074395{col 35}{space 2} .0872223{col 63}{space 4} 1.903442{col 76}{space 3} 2.245348
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .3897316{col 35}{space 2}  .014911{col 63}{space 4} .3615754{col 76}{space 3} .4200803
+{txt}                    s {c |}{col 23}{res}{space 2} 7.959729{col 35}{space 2} .6942659{col 63}{space 4}  6.70895{col 76}{space 3} 9.443697
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.8e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits, irr
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-6907531.9}  
+Iteration 1:{space 3}log likelihood = {res:-6907308.1}  
+Iteration 2:{space 3}log likelihood = {res:-6907308.1}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2388159.6}  
+Iteration 1:{space 3}log likelihood = {res:-840110.21}  
+Iteration 2:{space 3}log likelihood = {res:-826080.09}  
+Iteration 3:{space 3}log likelihood = {res:-825797.56}  
+Iteration 4:{space 3}log likelihood = {res:-825797.49}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-825797.49}  
+Iteration 1:{space 3}log likelihood = {res:-824125.62}  
+Iteration 2:{space 3}log likelihood = {res:-824117.36}  
+Iteration 3:{space 3}log likelihood = {res:-824117.36}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1971131.1}  
+Iteration 1:{space 3}log likelihood = {res:-1403009.7}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-944389.88}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-809653.71}  (not concave)
+Iteration 4:{space 3}log likelihood = {res:-791371.46}  
+Iteration 5:{space 3}log likelihood = {res:-789249.92}  
+Iteration 6:{space 3}log likelihood = {res:-789238.14}  
+Iteration 7:{space 3}log likelihood = {res:-789238.12}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,181
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}6{txt}){col 67}={col 70}{res} 11360.66
+{txt}Log likelihood  = {res}-789238.12{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_coordination{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} 1.037318{col 35}{space 2}  .003397{col 46}{space 1}   11.19{col 55}{space 3}0.000{col 63}{space 4} 1.030681{col 76}{space 3} 1.043997
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9238713{col 35}{space 2} .0027375{col 46}{space 1}  -26.72{col 55}{space 3}0.000{col 63}{space 4} .9185215{col 76}{space 3} .9292522
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .7743743{col 35}{space 2} .0028659{col 46}{space 1}  -69.09{col 55}{space 3}0.000{col 63}{space 4} .7687775{col 76}{space 3} .7800117
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.016201{col 35}{space 2} .0026995{col 46}{space 1}    6.05{col 55}{space 3}0.000{col 63}{space 4} 1.010924{col 76}{space 3} 1.021506
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .9632611{col 35}{space 2} .0027621{col 46}{space 1}  -13.05{col 55}{space 3}0.000{col 63}{space 4} .9578627{col 76}{space 3}   .96869
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.123856{col 35}{space 2} .0040922{col 46}{space 1}   32.07{col 55}{space 3}0.000{col 63}{space 4} 1.115864{col 76}{space 3} 1.131905
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .5003075{col 35}{space 2} .0012349{col 46}{space 1} -280.58{col 55}{space 3}0.000{col 63}{space 4}  .497893{col 76}{space 3} .5027337
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} 1.077824{col 35}{space 2} .0400926{col 63}{space 4}  .999244{col 76}{space 3} 1.156404
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 3.070431{col 35}{space 2} .0453998{col 63}{space 4} 2.981449{col 76}{space 3} 3.159413
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 2.938279{col 35}{space 2} .1178031{col 63}{space 4} 2.716228{col 76}{space 3} 3.178483
+{txt}                    s {c |}{col 23}{res}{space 2} 21.55119{col 35}{space 2} .9784203{col 63}{space 4} 19.71636{col 76}{space 3} 23.55677
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}7.0e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. 
+. 
+. ** check correlations between transferred IVs and CVs
+. corr lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits s_iv_cos_sim lns_iv_amount_talked lns_iv_amount_talking
+{txt}(obs=271,181)
+
+             {c |} lns_c~ge lns_cv~d lns_cv.. lns_cv.. lns_c~re lns_cv~s s_iv_c~m lns_iv.. lns_iv..
+{hline 13}{c +}{hline 81}
+lns_cv_wp~ge {c |}{res}   1.0000
+{txt}lns_cv_wor~d {c |}{res}   0.1029   1.0000
+{txt}lns_c~r_size {c |}{res}   0.7407  -0.1146   1.0000
+{txt}lns_c~t_size {c |}{res}   0.2663  -0.1184   0.4334   1.0000
+{txt}lns_cv_use~e {c |}{res}   0.1713   0.5334   0.0232  -0.0373   1.0000
+{txt}lns_cv_pri~s {c |}{res}   0.0560   0.7556  -0.0919  -0.0726   0.7400   1.0000
+{txt}s_iv_cos_sim {c |}{res}  -0.0466  -0.0285  -0.0769   0.0294   0.1364   0.1576   1.0000
+{txt}lns_iv_amo~d {c |}{res}   0.2793   0.4263   0.2713   0.1011   0.4080   0.5278   0.0555   1.0000
+{txt}lns_iv_amo~g {c |}{res}   0.2959   0.5067   0.2704   0.0870   0.4290   0.5914   0.0311   0.7881   1.0000
+
+{txt}
+{com}. 
+. ** generate IV interaction terms
+. gen cosim_amtlked = s_iv_cos_sim*lns_iv_amount_talked
+{txt}
+{com}. gen cosim_amtlking = s_iv_cos_sim*lns_iv_amount_talking
+{txt}
+{com}. gen cosim_mbrtlked = s_iv_cos_sim*lns_iv_member_talked
+{txt}
+{com}. gen cosim_mbrtlking = s_iv_cos_sim*lns_iv_member_talking
+{txt}
+{com}. gen cosim_maxtlked = s_iv_cos_sim*lns_iv_max_talked
+{txt}
+{com}. gen cosim_maxtlking = s_iv_cos_sim*lns_iv_max_talking
+{txt}
+{com}. 
+. 
+. ** check correlations
+. corr dv_productivity dv_communication dv_work_comm dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlking cosim_amtlked
+{txt}(obs=271,181)
+
+             {c |} dv_pro~y dv_com~n dv_wor~m dv_coo~n lns_c~ge lns_cv~d lns_cv.. lns_cv.. lns_c~re
+{hline 13}{c +}{hline 81}
+dv_product~y {c |}{res}   1.0000
+{txt}dv_communi~n {c |}{res}   0.1852   1.0000
+{txt}dv_work_comm {c |}{res}   0.4128   0.1025   1.0000
+{txt}dv_coordin~n {c |}{res}   0.2441   0.1202   0.1911   1.0000
+{txt}lns_cv_wp~ge {c |}{res}  -0.0156   0.0644  -0.0135  -0.0369   1.0000
+{txt}lns_cv_wor~d {c |}{res}  -0.0264   0.1148  -0.0076  -0.0328   0.1029   1.0000
+{txt}lns_c~r_size {c |}{res}   0.0214   0.1160   0.0045  -0.0154   0.7407  -0.1146   1.0000
+{txt}lns_c~t_size {c |}{res}   0.1175   0.0671   0.0642   0.0135   0.2663  -0.1184   0.4334   1.0000
+{txt}lns_cv_use~e {c |}{res}   0.0087   0.0763   0.0056  -0.0237   0.1713   0.5334   0.0232  -0.0373   1.0000
+{txt}lns_cv_pri~s {c |}{res}   0.0559   0.1621   0.0301  -0.0016   0.0560   0.7556  -0.0919  -0.0726   0.7400
+{txt}lns_iv_amo~d {c |}{res}   0.0620   0.2555   0.0277   0.0011   0.2793   0.4263   0.2713   0.1011   0.4080
+{txt}lns_iv_amo~g {c |}{res}   0.0549   0.3418   0.0302  -0.0020   0.2959   0.5067   0.2704   0.0870   0.4290
+{txt}s_iv_cos_sim {c |}{res}   0.0633   0.0298   0.0302   0.0312  -0.0466  -0.0285  -0.0769   0.0294   0.1364
+{txt}cosim_amtl~g {c |}{res}   0.0079   0.0273   0.0010  -0.0095   0.0218  -0.0452   0.0241   0.0118  -0.1237
+{txt}cosim_amtl~d {c |}{res}   0.0157   0.0217   0.0053  -0.0090   0.0262  -0.0598   0.0325   0.0181  -0.1239
+
+             {txt}{c |} lns_cv~s lns_iv.. lns_iv.. s_iv_c~m ~mtlking c~mtlked
+{hline 13}{c +}{hline 54}
+lns_cv_pri~s {c |}{res}   1.0000
+{txt}lns_iv_amo~d {c |}{res}   0.5278   1.0000
+{txt}lns_iv_amo~g {c |}{res}   0.5914   0.7881   1.0000
+{txt}s_iv_cos_sim {c |}{res}   0.1576   0.0555   0.0311   1.0000
+{txt}cosim_amtl~g {c |}{res}  -0.1377  -0.0071   0.0068  -0.3647   1.0000
+{txt}cosim_amtl~d {c |}{res}  -0.1405   0.0145  -0.0071  -0.3144   0.8393   1.0000
+
+{txt}
+{com}. 
+. ** regression with IV interaction terms - pairs of amounts of talks
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlking cosim_amtlked, irr, if dv_productivity < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -52632647}  
+Iteration 1:{space 3}log likelihood = {res: -50293570}  
+Iteration 2:{space 3}log likelihood = {res: -50007292}  
+Iteration 3:{space 3}log likelihood = {res: -49999878}  
+Iteration 4:{space 3}log likelihood = {res: -49999857}  
+Iteration 5:{space 3}log likelihood = {res: -49999857}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -29809481}  
+Iteration 1:{space 3}log likelihood = {res:-1204243.5}  
+Iteration 2:{space 3}log likelihood = {res:-1174343.4}  
+Iteration 3:{space 3}log likelihood = {res:-1167359.8}  
+Iteration 4:{space 3}log likelihood = {res:-1167359.6}  
+Iteration 5:{space 3}log likelihood = {res:-1167359.6}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1167359.6}  
+Iteration 1:{space 3}log likelihood = {res:-1128859.4}  
+Iteration 2:{space 3}log likelihood = {res:-1116869.5}  
+Iteration 3:{space 3}log likelihood = {res:-1115774.6}  
+Iteration 4:{space 3}log likelihood = {res:-1115663.6}  
+Iteration 5:{space 3}log likelihood = {res:-1115662.7}  
+Iteration 6:{space 3}log likelihood = {res:-1115662.7}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -21449782}  
+Iteration 1:{space 3}log likelihood = {res:-1710854.2}  
+Iteration 2:{space 3}log likelihood = {res:-1442554.3}  
+Iteration 3:{space 3}log likelihood = {res:  -1136911}  
+Iteration 4:{space 3}log likelihood = {res:-1113709.2}  
+Iteration 5:{space 3}log likelihood = {res:  -1109021}  
+Iteration 6:{space 3}log likelihood = {res:-1108191.3}  
+Iteration 7:{space 3}log likelihood = {res:-1108131.8}  
+Iteration 8:{space 3}log likelihood = {res:-1108131.5}  
+Iteration 9:{space 3}log likelihood = {res:-1108131.5}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   268,665
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     200.5
+{txt}{col 63}max{col 67}={col 69}{res}     5,164
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 61747.69
+{txt}Log likelihood  = {res}-1108131.5{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_productivity{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8776422{col 35}{space 2} .0036077{col 46}{space 1}  -31.75{col 55}{space 3}0.000{col 63}{space 4} .8705996{col 76}{space 3} .8847417
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2}  .592908{col 35}{space 2} .0023568{col 46}{space 1} -131.50{col 55}{space 3}0.000{col 63}{space 4} .5883067{col 76}{space 3} .5975453
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2}  .932827{col 35}{space 2} .0047137{col 46}{space 1}  -13.76{col 55}{space 3}0.000{col 63}{space 4}  .923634{col 76}{space 3} .9421116
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2}  1.53775{col 35}{space 2} .0066113{col 46}{space 1}  100.09{col 55}{space 3}0.000{col 63}{space 4} 1.524846{col 76}{space 3} 1.550762
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .8720404{col 35}{space 2} .0030721{col 46}{space 1}  -38.87{col 55}{space 3}0.000{col 63}{space 4} .8660399{col 76}{space 3} .8780825
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.224777{col 35}{space 2} .0113572{col 46}{space 1}  156.65{col 55}{space 3}0.000{col 63}{space 4} 2.202628{col 76}{space 3} 2.247148
+{txt}{space 1}lns_iv_amount_talked {c |}{col 23}{res}{space 2} 1.076604{col 35}{space 2} .0039412{col 46}{space 1}   20.16{col 55}{space 3}0.000{col 63}{space 4} 1.068908{col 76}{space 3} 1.084357
+{txt}lns_iv_amount_talking {c |}{col 23}{res}{space 2} 1.034216{col 35}{space 2}  .004115{col 46}{space 1}    8.46{col 55}{space 3}0.000{col 63}{space 4} 1.026182{col 76}{space 3} 1.042313
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.181872{col 35}{space 2} .0026241{col 46}{space 1}   75.26{col 55}{space 3}0.000{col 63}{space 4}  1.17674{col 76}{space 3} 1.187026
+{txt}{space 7}cosim_amtlking {c |}{col 23}{res}{space 2} 1.009786{col 35}{space 2} .0039435{col 46}{space 1}    2.49{col 55}{space 3}0.013{col 63}{space 4} 1.002086{col 76}{space 3} 1.017545
+{txt}{space 8}cosim_amtlked {c |}{col 23}{res}{space 2} .9961409{col 35}{space 2} .0037686{col 46}{space 1}   -1.02{col 55}{space 3}0.307{col 63}{space 4}  .988782{col 76}{space 3} 1.003555
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1825756{col 35}{space 2} .0005435{col 46}{space 1} -571.28{col 55}{space 3}0.000{col 63}{space 4} .1815135{col 76}{space 3} .1836439
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.9547974{col 35}{space 2} .0380791{col 63}{space 4}-1.029431{col 76}{space 3}-.8801638
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 2.781964{col 35}{space 2} .0888273{col 63}{space 4} 2.607865{col 76}{space 3} 2.956062
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .3848901{col 35}{space 2} .0146563{col 63}{space 4} .3572102{col 76}{space 3}  .414715
+{txt}                    s {c |}{col 23}{res}{space 2}  16.1507{col 35}{space 2} 1.434624{col 63}{space 4} 13.57005{col 76}{space 3} 19.22213
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.5e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlking cosim_amtlked, irr, if dv_communication < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -11617374}  
+Iteration 1:{space 3}log likelihood = {res:-9537171.2}  
+Iteration 2:{space 3}log likelihood = {res:-5752264.5}  
+Iteration 3:{space 3}log likelihood = {res:-5408250.2}  
+Iteration 4:{space 3}log likelihood = {res:-5307358.8}  
+Iteration 5:{space 3}log likelihood = {res:-5297378.8}  
+Iteration 6:{space 3}log likelihood = {res:-5297260.5}  
+Iteration 7:{space 3}log likelihood = {res:-5297260.5}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-4025721.7}  
+Iteration 1:{space 3}log likelihood = {res:-873474.66}  
+Iteration 2:{space 3}log likelihood = {res:-758335.12}  
+Iteration 3:{space 3}log likelihood = {res:-758061.73}  
+Iteration 4:{space 3}log likelihood = {res:-758061.58}  
+Iteration 5:{space 3}log likelihood = {res:-758061.58}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-758061.58}  
+Iteration 1:{space 3}log likelihood = {res:-711220.85}  
+Iteration 2:{space 3}log likelihood = {res:-696705.46}  
+Iteration 3:{space 3}log likelihood = {res:-695451.81}  
+Iteration 4:{space 3}log likelihood = {res:-695449.19}  
+Iteration 5:{space 3}log likelihood = {res:-695449.19}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2435881.9}  
+Iteration 1:{space 3}log likelihood = {res:-1429543.3}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-800857.14}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-700872.26}  
+Iteration 4:{space 3}log likelihood = {res:-694042.09}  (not concave)
+Iteration 5:{space 3}log likelihood = {res:-690289.61}  
+Iteration 6:{space 3}log likelihood = {res:-689906.47}  
+Iteration 7:{space 3}log likelihood = {res:-689889.97}  
+Iteration 8:{space 3}log likelihood = {res:-689889.93}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,177
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res}144425.20
+{txt}Log likelihood  = {res}-689889.93{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}     dv_communication{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8447756{col 35}{space 2} .0039049{col 46}{space 1}  -36.49{col 55}{space 3}0.000{col 63}{space 4} .8371568{col 76}{space 3} .8524638
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9145691{col 35}{space 2} .0036035{col 46}{space 1}  -22.67{col 55}{space 3}0.000{col 63}{space 4} .9075337{col 76}{space 3} .9216591
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} 1.181849{col 35}{space 2} .0061912{col 46}{space 1}   31.89{col 55}{space 3}0.000{col 63}{space 4} 1.169776{col 76}{space 3} 1.194046
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} .9764212{col 35}{space 2} .0033074{col 46}{space 1}   -7.04{col 55}{space 3}0.000{col 63}{space 4} .9699602{col 76}{space 3} .9829252
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .6922717{col 35}{space 2}  .003004{col 46}{space 1}  -84.76{col 55}{space 3}0.000{col 63}{space 4}  .686409{col 76}{space 3} .6981845
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.181552{col 35}{space 2} .0133936{col 46}{space 1}  127.05{col 55}{space 3}0.000{col 63}{space 4} 2.155458{col 76}{space 3} 2.207962
+{txt}{space 1}lns_iv_amount_talked {c |}{col 23}{res}{space 2} .9697047{col 35}{space 2} .0029016{col 46}{space 1}  -10.28{col 55}{space 3}0.000{col 63}{space 4} .9640343{col 76}{space 3} .9754084
+{txt}lns_iv_amount_talking {c |}{col 23}{res}{space 2} 1.764679{col 35}{space 2} .0065307{col 46}{space 1}  153.47{col 55}{space 3}0.000{col 63}{space 4} 1.751925{col 76}{space 3} 1.777525
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.085929{col 35}{space 2} .0032719{col 46}{space 1}   27.36{col 55}{space 3}0.000{col 63}{space 4} 1.079535{col 76}{space 3}  1.09236
+{txt}{space 7}cosim_amtlking {c |}{col 23}{res}{space 2} 1.018106{col 35}{space 2} .0038385{col 46}{space 1}    4.76{col 55}{space 3}0.000{col 63}{space 4}  1.01061{col 76}{space 3} 1.025657
+{txt}{space 8}cosim_amtlked {c |}{col 23}{res}{space 2} .9939819{col 35}{space 2} .0037116{col 46}{space 1}   -1.62{col 55}{space 3}0.106{col 63}{space 4} .9867338{col 76}{space 3} 1.001283
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1709542{col 35}{space 2} .0006049{col 46}{space 1} -499.24{col 55}{space 3}0.000{col 63}{space 4} .1697728{col 76}{space 3} .1721438
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} .8457959{col 35}{space 2} .0498474{col 63}{space 4} .7480967{col 76}{space 3}  .943495
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 4.043658{col 35}{space 2}  .064546{col 63}{space 4} 3.917151{col 76}{space 3} 4.170166
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 2.329831{col 35}{space 2} .1161361{col 63}{space 4} 2.112975{col 76}{space 3} 2.568944
+{txt}                    s {c |}{col 23}{res}{space 2} 57.03462{col 35}{space 2} 3.681355{col 63}{space 4} 50.25704{col 76}{space 3} 64.72621
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.1e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlking cosim_amtlked, irr, if dv_work_comm < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -21979470}  
+Iteration 1:{space 3}log likelihood = {res: -21967822}  
+Iteration 2:{space 3}log likelihood = {res: -21967773}  
+Iteration 3:{space 3}log likelihood = {res: -21967773}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -10736674}  
+Iteration 1:{space 3}log likelihood = {res:-815675.58}  
+Iteration 2:{space 3}log likelihood = {res:-813708.86}  
+Iteration 3:{space 3}log likelihood = {res:-813704.09}  
+Iteration 4:{space 3}log likelihood = {res:-813704.09}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-813704.09}  
+Iteration 1:{space 3}log likelihood = {res:-785309.22}  
+Iteration 2:{space 3}log likelihood = {res:-779517.28}  
+Iteration 3:{space 3}log likelihood = {res: -779277.7}  
+Iteration 4:{space 3}log likelihood = {res:-779274.48}  
+Iteration 5:{space 3}log likelihood = {res:-779274.48}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-8270011.6}  
+Iteration 1:{space 3}log likelihood = {res:-855500.45}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-778807.93}  
+Iteration 3:{space 3}log likelihood = {res:-772715.94}  
+Iteration 4:{space 3}log likelihood = {res: -772507.2}  
+Iteration 5:{space 3}log likelihood = {res:-772503.47}  
+Iteration 6:{space 3}log likelihood = {res:-772503.47}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   270,911
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.2
+{txt}{col 63}max{col 67}={col 69}{res}     5,218
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 41227.71
+{txt}Log likelihood  = {res}-772503.47{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         dv_work_comm{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8308912{col 35}{space 2} .0039585{col 46}{space 1}  -38.88{col 55}{space 3}0.000{col 63}{space 4} .8231687{col 76}{space 3} .8386862
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .6733543{col 35}{space 2}  .003072{col 46}{space 1}  -86.69{col 55}{space 3}0.000{col 63}{space 4}   .66736{col 76}{space 3} .6794024
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .9209563{col 35}{space 2} .0053833{col 46}{space 1}  -14.09{col 55}{space 3}0.000{col 63}{space 4} .9104653{col 76}{space 3} .9315681
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.491541{col 35}{space 2} .0076062{col 46}{space 1}   78.40{col 55}{space 3}0.000{col 63}{space 4} 1.476707{col 76}{space 3} 1.506523
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .8756714{col 35}{space 2} .0037038{col 46}{space 1}  -31.39{col 55}{space 3}0.000{col 63}{space 4} .8684422{col 76}{space 3} .8829608
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.934493{col 35}{space 2} .0115312{col 46}{space 1}  110.70{col 55}{space 3}0.000{col 63}{space 4} 1.912023{col 76}{space 3} 1.957226
+{txt}{space 1}lns_iv_amount_talked {c |}{col 23}{res}{space 2} 1.032075{col 35}{space 2} .0042185{col 46}{space 1}    7.72{col 55}{space 3}0.000{col 63}{space 4}  1.02384{col 76}{space 3} 1.040376
+{txt}lns_iv_amount_talking {c |}{col 23}{res}{space 2} 1.159344{col 35}{space 2} .0051967{col 46}{space 1}   32.99{col 55}{space 3}0.000{col 63}{space 4} 1.149203{col 76}{space 3} 1.169574
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.152086{col 35}{space 2} .0030668{col 46}{space 1}   53.18{col 55}{space 3}0.000{col 63}{space 4} 1.146091{col 76}{space 3} 1.158113
+{txt}{space 7}cosim_amtlking {c |}{col 23}{res}{space 2} 1.011787{col 35}{space 2} .0045073{col 46}{space 1}    2.63{col 55}{space 3}0.009{col 63}{space 4} 1.002991{col 76}{space 3}  1.02066
+{txt}{space 8}cosim_amtlked {c |}{col 23}{res}{space 2} .9876541{col 35}{space 2} .0043719{col 46}{space 1}   -2.81{col 55}{space 3}0.005{col 63}{space 4} .9791223{col 76}{space 3} .9962602
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2}  .121583{col 35}{space 2} .0004374{col 46}{space 1} -585.77{col 55}{space 3}0.000{col 63}{space 4} .1207288{col 76}{space 3} .1224432
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.8165751{col 35}{space 2}  .040285{col 63}{space 4}-.8955323{col 76}{space 3}-.7376178
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 2.384997{col 35}{space 2} .0892148{col 63}{space 4}  2.21014{col 76}{space 3} 2.559855
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .4419427{col 35}{space 2} .0178037{col 63}{space 4} .4083902{col 76}{space 3} .4782518
+{txt}                    s {c |}{col 23}{res}{space 2} 10.85903{col 35}{space 2} .9687862{col 63}{space 4}  9.11699{col 76}{space 3} 12.93394
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.4e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlking cosim_amtlked, irr, if dv_coordination < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-6003261.7}  
+Iteration 1:{space 3}log likelihood = {res:  -6002924}  
+Iteration 2:{space 3}log likelihood = {res:-6002923.8}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2221415.4}  
+Iteration 1:{space 3}log likelihood = {res:-841048.88}  
+Iteration 2:{space 3}log likelihood = {res:   -820056}  
+Iteration 3:{space 3}log likelihood = {res:-819360.59}  
+Iteration 4:{space 3}log likelihood = {res:-819360.21}  
+Iteration 5:{space 3}log likelihood = {res:-819360.21}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-819360.21}  
+Iteration 1:{space 3}log likelihood = {res: -817250.7}  
+Iteration 2:{space 3}log likelihood = {res:-817236.37}  
+Iteration 3:{space 3}log likelihood = {res:-817236.37}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1864345.9}  
+Iteration 1:{space 3}log likelihood = {res:-1217614.7}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-841977.26}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-789948.87}  
+Iteration 4:{space 3}log likelihood = {res: -786044.1}  
+Iteration 5:{space 3}log likelihood = {res:-785648.39}  
+Iteration 6:{space 3}log likelihood = {res:-785633.29}  
+Iteration 7:{space 3}log likelihood = {res:-785633.24}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,163
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,223
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 11699.41
+{txt}Log likelihood  = {res}-785633.24{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_coordination{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} 1.029921{col 35}{space 2} .0033762{col 46}{space 1}    8.99{col 55}{space 3}0.000{col 63}{space 4} 1.023325{col 76}{space 3}  1.03656
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9240085{col 35}{space 2} .0028476{col 46}{space 1}  -25.65{col 55}{space 3}0.000{col 63}{space 4} .9184442{col 76}{space 3} .9296066
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .7711142{col 35}{space 2}  .002962{col 46}{space 1}  -67.67{col 55}{space 3}0.000{col 63}{space 4} .7653306{col 76}{space 3} .7769416
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.016144{col 35}{space 2} .0027142{col 46}{space 1}    6.00{col 55}{space 3}0.000{col 63}{space 4} 1.010839{col 76}{space 3} 1.021478
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .9631867{col 35}{space 2} .0027679{col 46}{space 1}  -13.05{col 55}{space 3}0.000{col 63}{space 4} .9577769{col 76}{space 3} .9686271
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.085584{col 35}{space 2} .0043004{col 46}{space 1}   20.73{col 55}{space 3}0.000{col 63}{space 4} 1.077188{col 76}{space 3} 1.094046
+{txt}{space 1}lns_iv_amount_talked {c |}{col 23}{res}{space 2} 1.010402{col 35}{space 2} .0031101{col 46}{space 1}    3.36{col 55}{space 3}0.001{col 63}{space 4} 1.004325{col 76}{space 3} 1.016517
+{txt}lns_iv_amount_talking {c |}{col 23}{res}{space 2} 1.042701{col 35}{space 2}  .003478{col 46}{space 1}   12.54{col 55}{space 3}0.000{col 63}{space 4} 1.035906{col 76}{space 3}  1.04954
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.044055{col 35}{space 2} .0021527{col 46}{space 1}   20.91{col 55}{space 3}0.000{col 63}{space 4} 1.039845{col 76}{space 3} 1.048283
+{txt}{space 7}cosim_amtlking {c |}{col 23}{res}{space 2} 1.023655{col 35}{space 2}  .003919{col 46}{space 1}    6.11{col 55}{space 3}0.000{col 63}{space 4} 1.016002{col 76}{space 3} 1.031365
+{txt}{space 8}cosim_amtlked {c |}{col 23}{res}{space 2} .9914531{col 35}{space 2} .0037309{col 46}{space 1}   -2.28{col 55}{space 3}0.023{col 63}{space 4} .9841676{col 76}{space 3} .9987925
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .5101904{col 35}{space 2} .0012668{col 46}{space 1} -271.04{col 55}{space 3}0.000{col 63}{space 4} .5077136{col 76}{space 3} .5126793
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} 1.119931{col 35}{space 2} .0402972{col 63}{space 4}  1.04095{col 76}{space 3} 1.198913
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 3.099998{col 35}{space 2} .0454742{col 63}{space 4}  3.01087{col 76}{space 3} 3.189126
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 3.064644{col 35}{space 2} .1234967{col 63}{space 4} 2.831907{col 76}{space 3} 3.316508
+{txt}                    s {c |}{col 23}{res}{space 2} 22.19791{col 35}{space 2} 1.009431{col 63}{space 4} 20.30506{col 76}{space 3}  24.2672
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}6.3e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. 
+. ** check correlations
+. corr dv_productivity dv_communication dv_work_comm dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_mbrtlking cosim_mbrtlked
+{txt}(obs=271,181)
+
+             {c |} dv_pro~y dv_com~n dv_wor~m dv_coo~n lns_c~ge lns_cv~d lns_cv.. lns_cv.. lns_c~re
+{hline 13}{c +}{hline 81}
+dv_product~y {c |}{res}   1.0000
+{txt}dv_communi~n {c |}{res}   0.1852   1.0000
+{txt}dv_work_comm {c |}{res}   0.4128   0.1025   1.0000
+{txt}dv_coordin~n {c |}{res}   0.2441   0.1202   0.1911   1.0000
+{txt}lns_cv_wp~ge {c |}{res}  -0.0156   0.0644  -0.0135  -0.0369   1.0000
+{txt}lns_cv_wor~d {c |}{res}  -0.0264   0.1148  -0.0076  -0.0328   0.1029   1.0000
+{txt}lns_c~r_size {c |}{res}   0.0214   0.1160   0.0045  -0.0154   0.7407  -0.1146   1.0000
+{txt}lns_c~t_size {c |}{res}   0.1175   0.0671   0.0642   0.0135   0.2663  -0.1184   0.4334   1.0000
+{txt}lns_cv_use~e {c |}{res}   0.0087   0.0763   0.0056  -0.0237   0.1713   0.5334   0.0232  -0.0373   1.0000
+{txt}lns_cv_pri~s {c |}{res}   0.0559   0.1621   0.0301  -0.0016   0.0560   0.7556  -0.0919  -0.0726   0.7400
+{txt}lns_iv_amo~d {c |}{res}   0.0620   0.2555   0.0277   0.0011   0.2793   0.4263   0.2713   0.1011   0.4080
+{txt}lns_iv_amo~g {c |}{res}   0.0549   0.3418   0.0302  -0.0020   0.2959   0.5067   0.2704   0.0870   0.4290
+{txt}s_iv_cos_sim {c |}{res}   0.0633   0.0298   0.0302   0.0312  -0.0466  -0.0285  -0.0769   0.0294   0.1364
+{txt}cosim_mbrt~g {c |}{res}   0.0053   0.0070   0.0013  -0.0107   0.0187  -0.0560   0.0252   0.0153  -0.1411
+{txt}cosim_mbrt~d {c |}{res}   0.0133   0.0035   0.0050  -0.0101   0.0231  -0.0743   0.0348   0.0225  -0.1442
+
+             {txt}{c |} lns_cv~s lns_iv.. lns_iv.. s_iv_c~m ~rtlking c~rtlked
+{hline 13}{c +}{hline 54}
+lns_cv_pri~s {c |}{res}   1.0000
+{txt}lns_iv_amo~d {c |}{res}   0.5278   1.0000
+{txt}lns_iv_amo~g {c |}{res}   0.5914   0.7881   1.0000
+{txt}s_iv_cos_sim {c |}{res}   0.1576   0.0555   0.0311   1.0000
+{txt}cosim_mbrt~g {c |}{res}  -0.1615  -0.0397  -0.0297  -0.4289   1.0000
+{txt}cosim_mbrt~d {c |}{res}  -0.1676  -0.0243  -0.0423  -0.3680   0.8267   1.0000
+
+{txt}
+{com}. 
+. ** regression with IV interaction terms - pairs of member of talks
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlking cosim_mbrtlked, irr, if dv_productivity < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -51687637}  
+Iteration 1:{space 3}log likelihood = {res: -50232938}  
+Iteration 2:{space 3}log likelihood = {res: -50112544}  
+Iteration 3:{space 3}log likelihood = {res: -50111717}  
+Iteration 4:{space 3}log likelihood = {res: -50111717}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -29809481}  
+Iteration 1:{space 3}log likelihood = {res:-1204243.5}  
+Iteration 2:{space 3}log likelihood = {res:-1174343.4}  
+Iteration 3:{space 3}log likelihood = {res:-1167359.8}  
+Iteration 4:{space 3}log likelihood = {res:-1167359.6}  
+Iteration 5:{space 3}log likelihood = {res:-1167359.6}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1167359.6}  
+Iteration 1:{space 3}log likelihood = {res:-1127347.1}  
+Iteration 2:{space 3}log likelihood = {res:-1116461.8}  
+Iteration 3:{space 3}log likelihood = {res:-1115770.3}  
+Iteration 4:{space 3}log likelihood = {res:-1115733.3}  
+Iteration 5:{space 3}log likelihood = {res:-1115733.2}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -21461112}  
+Iteration 1:{space 3}log likelihood = {res:-1700695.5}  
+Iteration 2:{space 3}log likelihood = {res:-1434141.5}  
+Iteration 3:{space 3}log likelihood = {res:-1127670.7}  
+Iteration 4:{space 3}log likelihood = {res:-1109689.1}  
+Iteration 5:{space 3}log likelihood = {res:-1108194.7}  
+Iteration 6:{space 3}log likelihood = {res:-1108173.1}  
+Iteration 7:{space 3}log likelihood = {res:  -1108173}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   268,665
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     200.5
+{txt}{col 63}max{col 67}={col 69}{res}     5,164
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 61884.83
+{txt}Log likelihood  = {res}  -1108173{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_productivity{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8816044{col 35}{space 2} .0036265{col 46}{space 1}  -30.63{col 55}{space 3}0.000{col 63}{space 4} .8745251{col 76}{space 3}  .888741
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .5930188{col 35}{space 2} .0023701{col 46}{space 1} -130.74{col 55}{space 3}0.000{col 63}{space 4} .5883916{col 76}{space 3} .5976823
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .9271231{col 35}{space 2}  .004751{col 46}{space 1}  -14.77{col 55}{space 3}0.000{col 63}{space 4} .9178579{col 76}{space 3} .9364817
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.535955{col 35}{space 2} .0066002{col 46}{space 1}   99.87{col 55}{space 3}0.000{col 63}{space 4} 1.523073{col 76}{space 3} 1.548946
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2}  .869085{col 35}{space 2} .0030635{col 46}{space 1}  -39.81{col 55}{space 3}0.000{col 63}{space 4} .8631014{col 76}{space 3}   .87511
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.231065{col 35}{space 2}  .011388{col 46}{space 1}  157.22{col 55}{space 3}0.000{col 63}{space 4} 2.208856{col 76}{space 3} 2.253497
+{txt}{space 1}lns_iv_member_talked {c |}{col 23}{res}{space 2} 1.077573{col 35}{space 2} .0039627{col 46}{space 1}   20.32{col 55}{space 3}0.000{col 63}{space 4} 1.069834{col 76}{space 3} 1.085368
+{txt}lns_iv_member_talking {c |}{col 23}{res}{space 2} 1.030602{col 35}{space 2} .0041467{col 46}{space 1}    7.49{col 55}{space 3}0.000{col 63}{space 4} 1.022506{col 76}{space 3} 1.038761
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.187019{col 35}{space 2} .0026805{col 46}{space 1}   75.92{col 55}{space 3}0.000{col 63}{space 4} 1.181777{col 76}{space 3} 1.192284
+{txt}{space 6}cosim_mbrtlking {c |}{col 23}{res}{space 2} 1.018281{col 35}{space 2} .0043712{col 46}{space 1}    4.22{col 55}{space 3}0.000{col 63}{space 4} 1.009749{col 76}{space 3} 1.026884
+{txt}{space 7}cosim_mbrtlked {c |}{col 23}{res}{space 2} .9992527{col 35}{space 2} .0040187{col 46}{space 1}   -0.19{col 55}{space 3}0.853{col 63}{space 4} .9914072{col 76}{space 3}  1.00716
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1826285{col 35}{space 2} .0005437{col 46}{space 1} -571.12{col 55}{space 3}0.000{col 63}{space 4} .1815659{col 76}{space 3} .1836972
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.9542539{col 35}{space 2} .0380615{col 63}{space 4}-1.028853{col 76}{space 3}-.8796548
+{txt}                /ln_s {c |}{col 23}{res}{space 2}  2.78477{col 35}{space 2} .0887374{col 63}{space 4} 2.610848{col 76}{space 3} 2.958692
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .3850993{col 35}{space 2} .0146574{col 63}{space 4} .3574167{col 76}{space 3} .4149261
+{txt}                    s {c |}{col 23}{res}{space 2} 16.19609{col 35}{space 2} 1.437198{col 63}{space 4} 13.61058{col 76}{space 3} 19.27274
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.5e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlking cosim_mbrtlked, irr, if dv_communication < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-7935824.8}  
+Iteration 1:{space 3}log likelihood = {res:-6068676.1}  
+Iteration 2:{space 3}log likelihood = {res:-5970531.8}  
+Iteration 3:{space 3}log likelihood = {res:-5965775.8}  
+Iteration 4:{space 3}log likelihood = {res:  -5965747}  
+Iteration 5:{space 3}log likelihood = {res:  -5965747}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-4025721.7}  
+Iteration 1:{space 3}log likelihood = {res:-873474.66}  
+Iteration 2:{space 3}log likelihood = {res:-758335.12}  
+Iteration 3:{space 3}log likelihood = {res:-758061.73}  
+Iteration 4:{space 3}log likelihood = {res:-758061.58}  
+Iteration 5:{space 3}log likelihood = {res:-758061.58}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-758061.58}  
+Iteration 1:{space 3}log likelihood = {res:-713354.44}  
+Iteration 2:{space 3}log likelihood = {res:-700187.69}  
+Iteration 3:{space 3}log likelihood = {res:-699508.59}  
+Iteration 4:{space 3}log likelihood = {res:-699506.63}  
+Iteration 5:{space 3}log likelihood = {res:-699506.63}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2597594.1}  
+Iteration 1:{space 3}log likelihood = {res:-1081521.8}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-762659.45}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-714470.48}  (not concave)
+Iteration 4:{space 3}log likelihood = {res:-701294.45}  (not concave)
+Iteration 5:{space 3}log likelihood = {res:-695449.99}  
+Iteration 6:{space 3}log likelihood = {res:-694542.31}  
+Iteration 7:{space 3}log likelihood = {res:-694289.16}  
+Iteration 8:{space 3}log likelihood = {res:-694287.84}  
+Iteration 9:{space 3}log likelihood = {res:-694287.84}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,177
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res}127017.49
+{txt}Log likelihood  = {res}-694287.84{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}     dv_communication{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8802863{col 35}{space 2} .0040808{col 46}{space 1}  -27.51{col 55}{space 3}0.000{col 63}{space 4} .8723242{col 76}{space 3}  .888321
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9087905{col 35}{space 2} .0036105{col 46}{space 1}  -24.07{col 55}{space 3}0.000{col 63}{space 4} .9017415{col 76}{space 3} .9158947
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} 1.165735{col 35}{space 2} .0062875{col 46}{space 1}   28.43{col 55}{space 3}0.000{col 63}{space 4} 1.153476{col 76}{space 3} 1.178123
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} .9733178{col 35}{space 2} .0032764{col 46}{space 1}   -8.03{col 55}{space 3}0.000{col 63}{space 4} .9669172{col 76}{space 3} .9797607
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .6853556{col 35}{space 2} .0029797{col 46}{space 1}  -86.90{col 55}{space 3}0.000{col 63}{space 4} .6795403{col 76}{space 3} .6912207
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.323156{col 35}{space 2} .0142359{col 46}{space 1}  137.56{col 55}{space 3}0.000{col 63}{space 4} 2.295421{col 76}{space 3} 2.351226
+{txt}{space 1}lns_iv_member_talked {c |}{col 23}{res}{space 2} .9716586{col 35}{space 2} .0029248{col 46}{space 1}   -9.55{col 55}{space 3}0.000{col 63}{space 4}  .965943{col 76}{space 3}  .977408
+{txt}lns_iv_member_talking {c |}{col 23}{res}{space 2} 1.606448{col 35}{space 2} .0059274{col 46}{space 1}  128.47{col 55}{space 3}0.000{col 63}{space 4} 1.594873{col 76}{space 3} 1.618108
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.098755{col 35}{space 2} .0033206{col 46}{space 1}   31.16{col 55}{space 3}0.000{col 63}{space 4} 1.092266{col 76}{space 3} 1.105283
+{txt}{space 6}cosim_mbrtlking {c |}{col 23}{res}{space 2} 1.042789{col 35}{space 2} .0045887{col 46}{space 1}    9.52{col 55}{space 3}0.000{col 63}{space 4} 1.033835{col 76}{space 3} 1.051822
+{txt}{space 7}cosim_mbrtlked {c |}{col 23}{res}{space 2} .9875921{col 35}{space 2} .0041964{col 46}{space 1}   -2.94{col 55}{space 3}0.003{col 63}{space 4} .9794016{col 76}{space 3} .9958512
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1661492{col 35}{space 2}  .000586{col 46}{space 1} -508.92{col 55}{space 3}0.000{col 63}{space 4} .1650047{col 76}{space 3} .1673017
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} .7664663{col 35}{space 2} .0494815{col 63}{space 4} .6694844{col 76}{space 3} .8634482
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 4.030979{col 35}{space 2} .0649587{col 63}{space 4} 3.903662{col 76}{space 3} 4.158295
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 2.152148{col 35}{space 2} .1064914{col 63}{space 4}  1.95323{col 76}{space 3} 2.371323
+{txt}                    s {c |}{col 23}{res}{space 2}   56.316{col 35}{space 2} 3.658212{col 63}{space 4} 49.58369{col 76}{space 3} 63.96239
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.0e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlking cosim_mbrtlked, irr, if dv_work_comm < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -22063324}  
+Iteration 1:{space 3}log likelihood = {res: -22053461}  
+Iteration 2:{space 3}log likelihood = {res: -22053429}  
+Iteration 3:{space 3}log likelihood = {res: -22053429}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -10736674}  
+Iteration 1:{space 3}log likelihood = {res:-815675.58}  
+Iteration 2:{space 3}log likelihood = {res:-813708.86}  
+Iteration 3:{space 3}log likelihood = {res:-813704.09}  
+Iteration 4:{space 3}log likelihood = {res:-813704.09}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-813704.09}  
+Iteration 1:{space 3}log likelihood = {res:-785274.87}  
+Iteration 2:{space 3}log likelihood = {res:-779606.45}  
+Iteration 3:{space 3}log likelihood = {res:-779449.89}  
+Iteration 4:{space 3}log likelihood = {res:-779448.51}  
+Iteration 5:{space 3}log likelihood = {res: -779448.5}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-8280543.9}  
+Iteration 1:{space 3}log likelihood = {res:-852670.76}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-778187.75}  
+Iteration 3:{space 3}log likelihood = {res:-772773.03}  
+Iteration 4:{space 3}log likelihood = {res:-772634.44}  
+Iteration 5:{space 3}log likelihood = {res:-772631.37}  
+Iteration 6:{space 3}log likelihood = {res:-772631.37}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   270,911
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.2
+{txt}{col 63}max{col 67}={col 69}{res}     5,218
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 41110.15
+{txt}Log likelihood  = {res}-772631.37{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         dv_work_comm{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8369698{col 35}{space 2} .0039898{col 46}{space 1}  -37.33{col 55}{space 3}0.000{col 63}{space 4} .8291865{col 76}{space 3} .8448262
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .6715337{col 35}{space 2} .0030794{col 46}{space 1}  -86.84{col 55}{space 3}0.000{col 63}{space 4} .6655253{col 76}{space 3} .6775964
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2}  .912347{col 35}{space 2} .0054179{col 46}{space 1}  -15.45{col 55}{space 3}0.000{col 63}{space 4} .9017896{col 76}{space 3} .9230279
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.487161{col 35}{space 2} .0075789{col 46}{space 1}   77.88{col 55}{space 3}0.000{col 63}{space 4} 1.472381{col 76}{space 3}  1.50209
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .8720177{col 35}{space 2}  .003688{col 46}{space 1}  -32.38{col 55}{space 3}0.000{col 63}{space 4} .8648192{col 76}{space 3} .8792762
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.946013{col 35}{space 2} .0115916{col 46}{space 1}  111.77{col 55}{space 3}0.000{col 63}{space 4} 1.923426{col 76}{space 3} 1.968865
+{txt}{space 1}lns_iv_member_talked {c |}{col 23}{res}{space 2} 1.025366{col 35}{space 2} .0041785{col 46}{space 1}    6.15{col 55}{space 3}0.000{col 63}{space 4} 1.017209{col 76}{space 3} 1.033589
+{txt}lns_iv_member_talking {c |}{col 23}{res}{space 2} 1.159538{col 35}{space 2} .0052496{col 46}{space 1}   32.70{col 55}{space 3}0.000{col 63}{space 4} 1.149295{col 76}{space 3} 1.169873
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.159547{col 35}{space 2}  .003114{col 46}{space 1}   55.12{col 55}{space 3}0.000{col 63}{space 4}  1.15346{col 76}{space 3} 1.165667
+{txt}{space 6}cosim_mbrtlking {c |}{col 23}{res}{space 2} 1.031064{col 35}{space 2} .0050466{col 46}{space 1}    6.25{col 55}{space 3}0.000{col 63}{space 4}  1.02122{col 76}{space 3} 1.041003
+{txt}{space 7}cosim_mbrtlked {c |}{col 23}{res}{space 2} .9842821{col 35}{space 2} .0046233{col 46}{space 1}   -3.37{col 55}{space 3}0.001{col 63}{space 4} .9752623{col 76}{space 3} .9933854
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1216824{col 35}{space 2} .0004376{col 46}{space 1} -585.74{col 55}{space 3}0.000{col 63}{space 4} .1208278{col 76}{space 3}  .122543
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.8159013{col 35}{space 2} .0402239{col 63}{space 4}-.8947387{col 76}{space 3}-.7370638
+{txt}                /ln_s {c |}{col 23}{res}{space 2}  2.38853{col 35}{space 2} .0889852{col 63}{space 4} 2.214123{col 76}{space 3} 2.562938
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .4422406{col 35}{space 2} .0177887{col 63}{space 4} .4087144{col 76}{space 3} .4785169
+{txt}                    s {c |}{col 23}{res}{space 2} 10.89747{col 35}{space 2} .9697134{col 63}{space 4} 9.153375{col 76}{space 3} 12.97388
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.4e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlking cosim_mbrtlked, irr, if dv_coordination < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-6005040.6}  
+Iteration 1:{space 3}log likelihood = {res:-6004710.2}  
+Iteration 2:{space 3}log likelihood = {res:-6004710.1}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2221415.4}  
+Iteration 1:{space 3}log likelihood = {res:-841048.88}  
+Iteration 2:{space 3}log likelihood = {res:   -820056}  
+Iteration 3:{space 3}log likelihood = {res:-819360.59}  
+Iteration 4:{space 3}log likelihood = {res:-819360.21}  
+Iteration 5:{space 3}log likelihood = {res:-819360.21}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-819360.21}  
+Iteration 1:{space 3}log likelihood = {res:-817257.01}  
+Iteration 2:{space 3}log likelihood = {res:-817243.34}  
+Iteration 3:{space 3}log likelihood = {res:-817243.34}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1864496.6}  
+Iteration 1:{space 3}log likelihood = {res:-1217770.9}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-842115.51}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-789947.69}  
+Iteration 4:{space 3}log likelihood = {res: -786067.9}  
+Iteration 5:{space 3}log likelihood = {res:-785664.26}  
+Iteration 6:{space 3}log likelihood = {res:-785649.46}  
+Iteration 7:{space 3}log likelihood = {res:-785649.41}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,163
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,223
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 11657.70
+{txt}Log likelihood  = {res}-785649.41{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_coordination{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} 1.031787{col 35}{space 2} .0033836{col 46}{space 1}    9.54{col 55}{space 3}0.000{col 63}{space 4} 1.025176{col 76}{space 3}  1.03844
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9232955{col 35}{space 2} .0028598{col 46}{space 1}  -25.77{col 55}{space 3}0.000{col 63}{space 4} .9177074{col 76}{space 3} .9289177
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .7692859{col 35}{space 2} .0030014{col 46}{space 1}  -67.23{col 55}{space 3}0.000{col 63}{space 4} .7634257{col 76}{space 3}  .775191
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.015673{col 35}{space 2} .0027127{col 46}{space 1}    5.82{col 55}{space 3}0.000{col 63}{space 4}  1.01037{col 76}{space 3} 1.021004
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2}  .961936{col 35}{space 2} .0027642{col 46}{space 1}  -13.50{col 55}{space 3}0.000{col 63}{space 4} .9565334{col 76}{space 3} .9673691
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.088221{col 35}{space 2}  .004305{col 46}{space 1}   21.37{col 55}{space 3}0.000{col 63}{space 4} 1.079816{col 76}{space 3} 1.096691
+{txt}{space 1}lns_iv_member_talked {c |}{col 23}{res}{space 2} 1.012176{col 35}{space 2} .0031173{col 46}{space 1}    3.93{col 55}{space 3}0.000{col 63}{space 4} 1.006085{col 76}{space 3} 1.018304
+{txt}lns_iv_member_talking {c |}{col 23}{res}{space 2} 1.039367{col 35}{space 2} .0035024{col 46}{space 1}   11.46{col 55}{space 3}0.000{col 63}{space 4} 1.032525{col 76}{space 3} 1.046255
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.048013{col 35}{space 2} .0022308{col 46}{space 1}   22.03{col 55}{space 3}0.000{col 63}{space 4}  1.04365{col 76}{space 3} 1.052395
+{txt}{space 6}cosim_mbrtlking {c |}{col 23}{res}{space 2} 1.032977{col 35}{space 2} .0041768{col 46}{space 1}    8.02{col 55}{space 3}0.000{col 63}{space 4} 1.024823{col 76}{space 3} 1.041196
+{txt}{space 7}cosim_mbrtlked {c |}{col 23}{res}{space 2} .9898014{col 35}{space 2} .0038444{col 46}{space 1}   -2.64{col 55}{space 3}0.008{col 63}{space 4} .9822951{col 76}{space 3} .9973652
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .5102333{col 35}{space 2} .0012669{col 46}{space 1} -271.01{col 55}{space 3}0.000{col 63}{space 4} .5077563{col 76}{space 3} .5127224
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} 1.119556{col 35}{space 2} .0402995{col 63}{space 4} 1.040571{col 76}{space 3} 1.198542
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 3.099791{col 35}{space 2} .0454804{col 63}{space 4} 3.010651{col 76}{space 3} 3.188931
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 3.063494{col 35}{space 2} .1234572{col 63}{space 4} 2.830832{col 76}{space 3} 3.315279
+{txt}                    s {c |}{col 23}{res}{space 2} 22.19332{col 35}{space 2} 1.009362{col 63}{space 4} 20.30061{col 76}{space 3} 24.26248
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}6.3e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. 
+. ** check correlations
+. corr dv_productivity dv_communication dv_work_comm dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_maxtlking cosim_maxtlked
+{txt}(obs=271,181)
+
+             {c |} dv_pro~y dv_com~n dv_wor~m dv_coo~n lns_c~ge lns_cv~d lns_cv.. lns_cv.. lns_c~re
+{hline 13}{c +}{hline 81}
+dv_product~y {c |}{res}   1.0000
+{txt}dv_communi~n {c |}{res}   0.1852   1.0000
+{txt}dv_work_comm {c |}{res}   0.4128   0.1025   1.0000
+{txt}dv_coordin~n {c |}{res}   0.2441   0.1202   0.1911   1.0000
+{txt}lns_cv_wp~ge {c |}{res}  -0.0156   0.0644  -0.0135  -0.0369   1.0000
+{txt}lns_cv_wor~d {c |}{res}  -0.0264   0.1148  -0.0076  -0.0328   0.1029   1.0000
+{txt}lns_c~r_size {c |}{res}   0.0214   0.1160   0.0045  -0.0154   0.7407  -0.1146   1.0000
+{txt}lns_c~t_size {c |}{res}   0.1175   0.0671   0.0642   0.0135   0.2663  -0.1184   0.4334   1.0000
+{txt}lns_cv_use~e {c |}{res}   0.0087   0.0763   0.0056  -0.0237   0.1713   0.5334   0.0232  -0.0373   1.0000
+{txt}lns_cv_pri~s {c |}{res}   0.0559   0.1621   0.0301  -0.0016   0.0560   0.7556  -0.0919  -0.0726   0.7400
+{txt}lns_iv_amo~d {c |}{res}   0.0620   0.2555   0.0277   0.0011   0.2793   0.4263   0.2713   0.1011   0.4080
+{txt}lns_iv_amo~g {c |}{res}   0.0549   0.3418   0.0302  -0.0020   0.2959   0.5067   0.2704   0.0870   0.4290
+{txt}s_iv_cos_sim {c |}{res}   0.0633   0.0298   0.0302   0.0312  -0.0466  -0.0285  -0.0769   0.0294   0.1364
+{txt}cosim_maxt~g {c |}{res}   0.0097   0.0365   0.0013  -0.0079   0.0239  -0.0413   0.0250   0.0099  -0.1134
+{txt}cosim_maxt~d {c |}{res}   0.0166   0.0288   0.0071  -0.0081   0.0267  -0.0555   0.0315   0.0152  -0.1153
+
+             {txt}{c |} lns_cv~s lns_iv.. lns_iv.. s_iv_c~m ~xtlking c~xtlked
+{hline 13}{c +}{hline 54}
+lns_cv_pri~s {c |}{res}   1.0000
+{txt}lns_iv_amo~d {c |}{res}   0.5278   1.0000
+{txt}lns_iv_amo~g {c |}{res}   0.5914   0.7881   1.0000
+{txt}s_iv_cos_sim {c |}{res}   0.1576   0.0555   0.0311   1.0000
+{txt}cosim_maxt~g {c |}{res}  -0.1247   0.0099   0.0246  -0.3203   1.0000
+{txt}cosim_maxt~d {c |}{res}  -0.1295   0.0326   0.0074  -0.2708   0.8053   1.0000
+
+{txt}
+{com}. 
+. ** regression with IV interaction terms - pairs of max of talks
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cosim_maxtlked, irr, if dv_productivity < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -53295915}  
+Iteration 1:{space 3}log likelihood = {res: -50467391}  
+Iteration 2:{space 3}log likelihood = {res: -50036627}  
+Iteration 3:{space 3}log likelihood = {res: -50012244}  
+Iteration 4:{space 3}log likelihood = {res: -50012153}  
+Iteration 5:{space 3}log likelihood = {res: -50012153}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -29809481}  
+Iteration 1:{space 3}log likelihood = {res:-1204243.5}  
+Iteration 2:{space 3}log likelihood = {res:-1174343.4}  
+Iteration 3:{space 3}log likelihood = {res:-1167359.8}  
+Iteration 4:{space 3}log likelihood = {res:-1167359.6}  
+Iteration 5:{space 3}log likelihood = {res:-1167359.6}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1167359.6}  
+Iteration 1:{space 3}log likelihood = {res:-1129498.5}  
+Iteration 2:{space 3}log likelihood = {res:-1117171.4}  
+Iteration 3:{space 3}log likelihood = {res:  -1115882}  
+Iteration 4:{space 3}log likelihood = {res:-1115702.8}  
+Iteration 5:{space 3}log likelihood = {res:-1115698.4}  
+Iteration 6:{space 3}log likelihood = {res:-1115698.4}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -21462994}  
+Iteration 1:{space 3}log likelihood = {res:-1711592.5}  
+Iteration 2:{space 3}log likelihood = {res:-1585298.1}  
+Iteration 3:{space 3}log likelihood = {res:-1223323.7}  
+Iteration 4:{space 3}log likelihood = {res:-1131398.4}  
+Iteration 5:{space 3}log likelihood = {res:  -1111637}  
+Iteration 6:{space 3}log likelihood = {res:-1108724.5}  
+Iteration 7:{space 3}log likelihood = {res:-1108206.2}  
+Iteration 8:{space 3}log likelihood = {res:-1108181.9}  
+Iteration 9:{space 3}log likelihood = {res:-1108181.7}  
+Iteration 10:{space 2}log likelihood = {res:-1108181.7}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   268,665
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     200.5
+{txt}{col 63}max{col 67}={col 69}{res}     5,164
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 61379.50
+{txt}Log likelihood  = {res}-1108181.7{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_productivity{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8749842{col 35}{space 2} .0035977{col 46}{space 1}  -32.48{col 55}{space 3}0.000{col 63}{space 4} .8679611{col 76}{space 3}  .882064
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .5954293{col 35}{space 2} .0023488{col 46}{space 1} -131.44{col 55}{space 3}0.000{col 63}{space 4} .5908436{col 76}{space 3} .6000506
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .9422885{col 35}{space 2} .0047067{col 46}{space 1}  -11.90{col 55}{space 3}0.000{col 63}{space 4} .9331086{col 76}{space 3} .9515587
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.538415{col 35}{space 2} .0066168{col 46}{space 1}  100.15{col 55}{space 3}0.000{col 63}{space 4} 1.525501{col 76}{space 3} 1.551439
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .8735494{col 35}{space 2} .0030745{col 46}{space 1}  -38.41{col 55}{space 3}0.000{col 63}{space 4} .8675443{col 76}{space 3} .8795961
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 2.236406{col 35}{space 2}  .011345{col 46}{space 1}  158.66{col 55}{space 3}0.000{col 63}{space 4} 2.214281{col 76}{space 3} 2.258753
+{txt}{space 4}lns_iv_max_talked {c |}{col 23}{res}{space 2}  1.06777{col 35}{space 2} .0035091{col 46}{space 1}   19.95{col 55}{space 3}0.000{col 63}{space 4} 1.060915{col 76}{space 3}  1.07467
+{txt}{space 3}lns_iv_max_talking {c |}{col 23}{res}{space 2} 1.034316{col 35}{space 2} .0036655{col 46}{space 1}    9.52{col 55}{space 3}0.000{col 63}{space 4} 1.027157{col 76}{space 3} 1.041526
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.180503{col 35}{space 2} .0026124{col 46}{space 1}   74.99{col 55}{space 3}0.000{col 63}{space 4} 1.175394{col 76}{space 3} 1.185634
+{txt}{space 6}cosim_maxtlking {c |}{col 23}{res}{space 2}  1.00741{col 35}{space 2} .0033799{col 46}{space 1}    2.20{col 55}{space 3}0.028{col 63}{space 4} 1.000807{col 76}{space 3} 1.014056
+{txt}{space 7}cosim_maxtlked {c |}{col 23}{res}{space 2} .9943519{col 35}{space 2} .0032487{col 46}{space 1}   -1.73{col 55}{space 3}0.083{col 63}{space 4} .9880049{col 76}{space 3}  1.00074
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1824445{col 35}{space 2} .0005431{col 46}{space 1} -571.49{col 55}{space 3}0.000{col 63}{space 4} .1813831{col 76}{space 3} .1835121
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.9547928{col 35}{space 2} .0380935{col 63}{space 4}-1.029455{col 76}{space 3}-.8801308
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 2.782341{col 35}{space 2} .0888784{col 63}{space 4} 2.608142{col 76}{space 3} 2.956539
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .3848919{col 35}{space 2} .0146619{col 63}{space 4} .3572017{col 76}{space 3} .4147287
+{txt}                    s {c |}{col 23}{res}{space 2}  16.1568{col 35}{space 2}  1.43599{col 63}{space 4} 13.57381{col 76}{space 3}  19.2313
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.5e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cosim_maxtlked, irr, if dv_communication < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -15632376}  
+Iteration 1:{space 3}log likelihood = {res:-8667614.4}  
+Iteration 2:{space 3}log likelihood = {res:-5966391.5}  
+Iteration 3:{space 3}log likelihood = {res:-5542907.3}  
+Iteration 4:{space 3}log likelihood = {res:-5445664.9}  
+Iteration 5:{space 3}log likelihood = {res:-5436139.9}  
+Iteration 6:{space 3}log likelihood = {res:-5436111.9}  
+Iteration 7:{space 3}log likelihood = {res:-5436111.9}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-4025721.7}  
+Iteration 1:{space 3}log likelihood = {res:-873474.66}  
+Iteration 2:{space 3}log likelihood = {res:-758335.12}  
+Iteration 3:{space 3}log likelihood = {res:-758061.73}  
+Iteration 4:{space 3}log likelihood = {res:-758061.58}  
+Iteration 5:{space 3}log likelihood = {res:-758061.58}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-758061.58}  
+Iteration 1:{space 3}log likelihood = {res:-714402.12}  
+Iteration 2:{space 3}log likelihood = {res:-698365.32}  
+Iteration 3:{space 3}log likelihood = {res:-697124.75}  
+Iteration 4:{space 3}log likelihood = {res:-697119.82}  
+Iteration 5:{space 3}log likelihood = {res:-697119.81}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2472236.5}  
+Iteration 1:{space 3}log likelihood = {res:-1444450.7}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-866724.08}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-742097.28}  (not concave)
+Iteration 4:{space 3}log likelihood = {res:-698628.73}  (not concave)
+Iteration 5:{space 3}log likelihood = {res:-691854.61}  
+Iteration 6:{space 3}log likelihood = {res:-691042.01}  
+Iteration 7:{space 3}log likelihood = {res: -690989.8}  
+Iteration 8:{space 3}log likelihood = {res:-690989.48}  
+Iteration 9:{space 3}log likelihood = {res:-690989.48}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,177
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,224
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res}143685.82
+{txt}Log likelihood  = {res}-690989.48{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}     dv_communication{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8263243{col 35}{space 2} .0038283{col 46}{space 1}  -41.18{col 55}{space 3}0.000{col 63}{space 4} .8188549{col 76}{space 3} .8338618
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9451806{col 35}{space 2} .0036936{col 46}{space 1}  -14.43{col 55}{space 3}0.000{col 63}{space 4} .9379691{col 76}{space 3} .9524477
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} 1.279865{col 35}{space 2} .0066012{col 46}{space 1}   47.84{col 55}{space 3}0.000{col 63}{space 4} 1.266992{col 76}{space 3} 1.292869
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} .9752981{col 35}{space 2} .0033118{col 46}{space 1}   -7.37{col 55}{space 3}0.000{col 63}{space 4} .9688287{col 76}{space 3} .9818108
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .6985462{col 35}{space 2} .0030267{col 46}{space 1}  -82.80{col 55}{space 3}0.000{col 63}{space 4} .6926392{col 76}{space 3} .7045036
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2}    2.302{col 35}{space 2} .0139983{col 46}{space 1}  137.11{col 55}{space 3}0.000{col 63}{space 4} 2.274727{col 76}{space 3}   2.3296
+{txt}{space 4}lns_iv_max_talked {c |}{col 23}{res}{space 2} 1.001082{col 35}{space 2} .0028323{col 46}{space 1}    0.38{col 55}{space 3}0.702{col 63}{space 4} .9955457{col 76}{space 3} 1.006648
+{txt}{space 3}lns_iv_max_talking {c |}{col 23}{res}{space 2} 1.586065{col 35}{space 2}  .005012{col 46}{space 1}  145.97{col 55}{space 3}0.000{col 63}{space 4} 1.576272{col 76}{space 3} 1.595918
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.080861{col 35}{space 2} .0033268{col 46}{space 1}   25.26{col 55}{space 3}0.000{col 63}{space 4} 1.074361{col 76}{space 3} 1.087402
+{txt}{space 6}cosim_maxtlking {c |}{col 23}{res}{space 2} 1.016661{col 35}{space 2} .0033583{col 46}{space 1}    5.00{col 55}{space 3}0.000{col 63}{space 4}   1.0101{col 76}{space 3} 1.023265
+{txt}{space 7}cosim_maxtlked {c |}{col 23}{res}{space 2} .9891907{col 35}{space 2} .0033231{col 46}{space 1}   -3.24{col 55}{space 3}0.001{col 63}{space 4} .9826989{col 76}{space 3} .9957253
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .1690341{col 35}{space 2} .0005997{col 46}{space 1} -501.05{col 55}{space 3}0.000{col 63}{space 4} .1678628{col 76}{space 3} .1702136
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} .8092745{col 35}{space 2}   .04913{col 63}{space 4} .7129814{col 76}{space 3} .9055675
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 3.983892{col 35}{space 2} .0638426{col 63}{space 4} 3.858763{col 76}{space 3} 4.109022
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 2.246278{col 35}{space 2} .1103596{col 63}{space 4} 2.040065{col 76}{space 3} 2.473335
+{txt}                    s {c |}{col 23}{res}{space 2} 53.72575{col 35}{space 2} 3.429993{col 63}{space 4} 47.40668{col 76}{space 3} 60.88712
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.2e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cosim_maxtlked, irr, if dv_work_comm < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -22011440}  
+Iteration 1:{space 3}log likelihood = {res: -21999378}  
+Iteration 2:{space 3}log likelihood = {res: -21999317}  
+Iteration 3:{space 3}log likelihood = {res: -21999317}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res: -10736674}  
+Iteration 1:{space 3}log likelihood = {res:-815675.58}  
+Iteration 2:{space 3}log likelihood = {res:-813708.86}  
+Iteration 3:{space 3}log likelihood = {res:-813704.09}  
+Iteration 4:{space 3}log likelihood = {res:-813704.09}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-813704.09}  
+Iteration 1:{space 3}log likelihood = {res: -785337.2}  
+Iteration 2:{space 3}log likelihood = {res:-779670.25}  
+Iteration 3:{space 3}log likelihood = {res:-779407.61}  
+Iteration 4:{space 3}log likelihood = {res:-779402.85}  
+Iteration 5:{space 3}log likelihood = {res:-779402.85}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-8280822.5}  
+Iteration 1:{space 3}log likelihood = {res:-855760.01}  (not concave)
+Iteration 2:{space 3}log likelihood = {res:-780066.64}  
+Iteration 3:{space 3}log likelihood = {res:-773143.93}  
+Iteration 4:{space 3}log likelihood = {res:-772671.27}  
+Iteration 5:{space 3}log likelihood = {res:-772646.53}  
+Iteration 6:{space 3}log likelihood = {res:-772646.45}  
+Iteration 7:{space 3}log likelihood = {res:-772646.45}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   270,911
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.2
+{txt}{col 63}max{col 67}={col 69}{res}     5,218
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 40726.17
+{txt}Log likelihood  = {res}-772646.45{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         dv_work_comm{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} .8265867{col 35}{space 2} .0039398{col 46}{space 1}  -39.96{col 55}{space 3}0.000{col 63}{space 4} .8189008{col 76}{space 3} .8343447
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .6805894{col 35}{space 2} .0030767{col 46}{space 1}  -85.12{col 55}{space 3}0.000{col 63}{space 4} .6745858{col 76}{space 3} .6866464
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .9389963{col 35}{space 2} .0054236{col 46}{space 1}  -10.90{col 55}{space 3}0.000{col 63}{space 4} .9284262{col 76}{space 3} .9496869
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.492784{col 35}{space 2} .0076176{col 46}{space 1}   78.51{col 55}{space 3}0.000{col 63}{space 4} 1.477928{col 76}{space 3} 1.507789
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .8763411{col 35}{space 2} .0037021{col 46}{space 1}  -31.25{col 55}{space 3}0.000{col 63}{space 4}  .869115{col 76}{space 3} .8836272
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.958876{col 35}{space 2} .0115843{col 46}{space 1}  113.70{col 55}{space 3}0.000{col 63}{space 4} 1.936302{col 76}{space 3} 1.981712
+{txt}{space 4}lns_iv_max_talked {c |}{col 23}{res}{space 2}  1.04046{col 35}{space 2} .0038638{col 46}{space 1}   10.68{col 55}{space 3}0.000{col 63}{space 4} 1.032914{col 76}{space 3}  1.04806
+{txt}{space 3}lns_iv_max_talking {c |}{col 23}{res}{space 2} 1.128335{col 35}{space 2} .0044876{col 46}{space 1}   30.36{col 55}{space 3}0.000{col 63}{space 4} 1.119573{col 76}{space 3} 1.137164
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.150426{col 35}{space 2} .0030681{col 46}{space 1}   52.54{col 55}{space 3}0.000{col 63}{space 4} 1.144429{col 76}{space 3} 1.156455
+{txt}{space 6}cosim_maxtlking {c |}{col 23}{res}{space 2}  1.00752{col 35}{space 2} .0038779{col 46}{space 1}    1.95{col 55}{space 3}0.052{col 63}{space 4} .9999484{col 76}{space 3}  1.01515
+{txt}{space 7}cosim_maxtlked {c |}{col 23}{res}{space 2} .9870013{col 35}{space 2} .0038182{col 46}{space 1}   -3.38{col 55}{space 3}0.001{col 63}{space 4}  .979546{col 76}{space 3} .9945133
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2}  .121463{col 35}{space 2} .0004371{col 46}{space 1} -585.84{col 55}{space 3}0.000{col 63}{space 4} .1206094{col 76}{space 3} .1223227
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2}-.8166168{col 35}{space 2} .0403247{col 63}{space 4}-.8956518{col 76}{space 3}-.7375818
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 2.385681{col 35}{space 2} .0893435{col 63}{space 4} 2.210571{col 76}{space 3} 2.560791
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} .4419243{col 35}{space 2} .0178205{col 63}{space 4} .4083414{col 76}{space 3} .4782691
+{txt}                    s {c |}{col 23}{res}{space 2} 10.86646{col 35}{space 2}  .970848{col 63}{space 4} 9.120924{col 76}{space 3} 12.94606
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}1.4e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cosim_maxtlked, irr, if dv_coordination < 5000
+
+{txt}Fitting negative binomial (constant dispersion) model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-6005485.2}  
+Iteration 1:{space 3}log likelihood = {res:-6005158.9}  
+Iteration 2:{space 3}log likelihood = {res:-6005158.7}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-2221415.4}  
+Iteration 1:{space 3}log likelihood = {res:-841048.88}  
+Iteration 2:{space 3}log likelihood = {res:   -820056}  
+Iteration 3:{space 3}log likelihood = {res:-819360.59}  
+Iteration 4:{space 3}log likelihood = {res:-819360.21}  
+Iteration 5:{space 3}log likelihood = {res:-819360.21}  
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-819360.21}  
+Iteration 1:{space 3}log likelihood = {res:-817271.36}  
+Iteration 2:{space 3}log likelihood = {res:-817257.04}  
+Iteration 3:{space 3}log likelihood = {res:-817257.03}  
+{res}
+{txt}Fitting full model:
+{res}
+{txt}Iteration 0:{space 3}log likelihood = {res:-1864601.4}  
+Iteration 1:{space 3}log likelihood = {res:  -1216748}  (not concave)
+Iteration 2:{space 3}log likelihood = {res: -841927.1}  (not concave)
+Iteration 3:{space 3}log likelihood = {res:-789961.43}  
+Iteration 4:{space 3}log likelihood = {res:-786073.77}  
+Iteration 5:{space 3}log likelihood = {res:-785670.06}  
+Iteration 6:{space 3}log likelihood = {res:-785655.04}  
+Iteration 7:{space 3}log likelihood = {res:-785654.99}  
+{res}
+{txt}Random-effects negative binomial regression{col 49}Number of obs{col 67}={col 69}{res}   271,163
+{txt}Group variable: {res}nwikiproject{col 49}{txt}Number of groups{col 67}={col 69}{res}     1,340
+
+{txt}Random effects u_i ~ {res}Beta{txt}{col 49}Obs per group:
+{col 63}min{col 67}={col 69}{res}         3
+{txt}{col 63}avg{col 67}={col 69}{res}     202.4
+{txt}{col 63}max{col 67}={col 69}{res}     5,223
+
+{txt}{col 49}Wald chi2({res}11{txt}){col 67}={col 70}{res} 11649.95
+{txt}Log likelihood  = {res}-785654.99{col 49}{txt}Prob > chi2{col 67}={res}{col 73}0.0000
+
+{txt}{hline 22}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}      dv_coordination{col 23}{c |}        IRR{col 35}   Std. Err.{col 47}      z{col 55}   P>|z|{col 63}     [95% Con{col 76}f. Interval]
+{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 8}lns_cv_wp_age {c |}{col 23}{res}{space 2} 1.028689{col 35}{space 2} .0033737{col 46}{space 1}    8.62{col 55}{space 3}0.000{col 63}{space 4} 1.022098{col 76}{space 3} 1.035323
+{txt}{space 6}lns_cv_workload {c |}{col 23}{res}{space 2} .9262402{col 35}{space 2} .0028382{col 46}{space 1}  -25.01{col 55}{space 3}0.000{col 63}{space 4} .9206941{col 76}{space 3} .9318197
+{txt}lns_cv_wp_member_size {c |}{col 23}{res}{space 2} .7746194{col 35}{space 2}  .002939{col 46}{space 1}  -67.31{col 55}{space 3}0.000{col 63}{space 4} .7688806{col 76}{space 3} .7804011
+{txt}{space 3}lns_cv_wp_art_size {c |}{col 23}{res}{space 2} 1.016361{col 35}{space 2}  .002715{col 46}{space 1}    6.08{col 55}{space 3}0.000{col 63}{space 4} 1.011053{col 76}{space 3} 1.021696
+{txt}{space 3}lns_cv_user_tenure {c |}{col 23}{res}{space 2} .9634827{col 35}{space 2} .0027678{col 46}{space 1}  -12.95{col 55}{space 3}0.000{col 63}{space 4} .9580731{col 76}{space 3} .9689229
+{txt}{space 3}lns_cv_prior_edits {c |}{col 23}{res}{space 2} 1.087736{col 35}{space 2} .0042886{col 46}{space 1}   21.33{col 55}{space 3}0.000{col 63}{space 4} 1.079363{col 76}{space 3} 1.096174
+{txt}{space 4}lns_iv_max_talked {c |}{col 23}{res}{space 2}  1.00984{col 35}{space 2} .0028374{col 46}{space 1}    3.48{col 55}{space 3}0.000{col 63}{space 4} 1.004294{col 76}{space 3} 1.015417
+{txt}{space 3}lns_iv_max_talking {c |}{col 23}{res}{space 2} 1.038616{col 35}{space 2} .0031252{col 46}{space 1}   12.59{col 55}{space 3}0.000{col 63}{space 4} 1.032509{col 76}{space 3} 1.044759
+{txt}{space 9}s_iv_cos_sim {c |}{col 23}{res}{space 2} 1.041927{col 35}{space 2} .0021204{col 46}{space 1}   20.18{col 55}{space 3}0.000{col 63}{space 4}  1.03778{col 76}{space 3} 1.046092
+{txt}{space 6}cosim_maxtlking {c |}{col 23}{res}{space 2} 1.018438{col 35}{space 2} .0033961{col 46}{space 1}    5.48{col 55}{space 3}0.000{col 63}{space 4} 1.011803{col 76}{space 3} 1.025116
+{txt}{space 7}cosim_maxtlked {c |}{col 23}{res}{space 2} .9929078{col 35}{space 2} .0032719{col 46}{space 1}   -2.16{col 55}{space 3}0.031{col 63}{space 4} .9865156{col 76}{space 3} .9993414
+{txt}{space 16}_cons {c |}{col 23}{res}{space 2} .5100945{col 35}{space 2} .0012668{col 46}{space 1} -271.05{col 55}{space 3}0.000{col 63}{space 4} .5076176{col 76}{space 3} .5125835
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                /ln_r {c |}{col 23}{res}{space 2} 1.120002{col 35}{space 2} .0402954{col 63}{space 4} 1.041025{col 76}{space 3}  1.19898
+{txt}                /ln_s {c |}{col 23}{res}{space 2} 3.100354{col 35}{space 2}   .04547{col 63}{space 4} 3.011235{col 76}{space 3} 3.189474
+{txt}{hline 22}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+                    r {c |}{col 23}{res}{space 2} 3.064862{col 35}{space 2} .1234998{col 63}{space 4} 2.832118{col 76}{space 3} 3.316732
+{txt}                    s {c |}{col 23}{res}{space 2} 22.20582{col 35}{space 2} 1.009699{col 63}{space 4} 20.31246{col 76}{space 3} 24.27565
+{txt}{hline 22}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{txt}LR test vs. pooled: {help j_chibar##|_new:chibar2(01) = }{res}6.3e+04{col 56}{txt}Prob >= chibar2 = {res}0.000
+{txt}
+{com}. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}/Users/bobo/Documents/wikipedia_user_dropout/script_stata/regressions_no_outliers_5k.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}19 Apr 2016, 21:25:30
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

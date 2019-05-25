@@ -1,0 +1,1302 @@
+-------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/bobo/Documents/wikipedia_user_dropout/script_stata/regressions1.log
+  log type:  text
+ opened on:  17 Apr 2016, 22:38:17
+
+. do "/Users/bobo/Documents/wikipedia_user_dropout/script_stata/regressions.do"
+
+. clear all
+
+. set more off
+
+. 
+. import delimited "/Users/bobo/Documents/wikipedia_user_dropout/data/analysis_data/results_dvs_cvs_ivs
+> _encoded_final.csv", encoding(ISO-8859-1)
+(21 vars, 271,181 obs)
+
+. 
+. * wikiproject is self encoded in the data // encode wikiproject, gen(nwikiproject)
+. xtset nwikiproject
+       panel variable:  nwikiproject (unbalanced)
+
+. 
+. ** correlation between IVs
+. cor iv_cos_sim iv_amount_talked iv_amount_talking iv_max_talked iv_max_talking iv_member_talked iv_me
+> mber_talking cv_prior_edits cv_wp_age cv_wp_member_size cv_user_tenure cv_wp_art_size cv_workload
+(obs=271,181)
+
+             | iv_cos~m iv_amo~d iv_amo~g iv_max~d iv_max~g iv_mem~d iv_mem~g cv_pri~s cv_wp~ge
+-------------+---------------------------------------------------------------------------------
+  iv_cos_sim |   1.0000
+iv_amount_~d |   0.0045   1.0000
+iv_amount_~g |   0.0076   0.4587   1.0000
+iv_max_tal~d |   0.0132   0.7732   0.3436   1.0000
+iv_max_tal~g |   0.0177   0.3364   0.8160   0.3679   1.0000
+iv_member_~d |  -0.0022   0.5881   0.5808   0.2892   0.2950   1.0000
+iv_member_~g |  -0.0105   0.4039   0.6800   0.2112   0.3213   0.8029   1.0000
+cv_prior_e~s |  -0.0057   0.1848   0.2829   0.1551   0.2170   0.2900   0.3147   1.0000
+   cv_wp_age |  -0.0447   0.1125   0.1649   0.0746   0.1031   0.2585   0.2560   0.1171   1.0000
+cv_wp_memb~e |  -0.0588   0.0939   0.1414   0.0388   0.0565   0.2623   0.2552  -0.0343   0.5201
+cv_user_te~e |   0.0351   0.1435   0.1963   0.0984   0.1382   0.3063   0.2899   0.3696   0.3644
+cv_wp_art_~e |  -0.0219   0.0280   0.0446   0.0096   0.0161   0.0895   0.0834  -0.0325   0.1623
+ cv_workload |  -0.0346   0.0497   0.0706   0.0437   0.0564   0.0955   0.0931   0.2643   0.0715
+
+             | c~r_size cv_use~e c~t_size cv_wor~d
+-------------+------------------------------------
+cv_wp_memb~e |   1.0000
+cv_user_te~e |   0.0486   1.0000
+cv_wp_art_~e |   0.4149  -0.0306   1.0000
+ cv_workload |  -0.0809   0.2861  -0.0440   1.0000
+
+
+. 
+. ** log transform all the standarize variables except the cos_sim
+. gen ln_cv_wp_age = ln(cv_wp_age+1) / ln(2)
+
+. gen ln_cv_workload = ln(cv_workload+1) / ln(2)
+
+. gen ln_cv_wp_member_size = ln(cv_wp_member_size+1) / ln(2)
+
+. gen ln_cv_wp_art_size = ln(cv_wp_art_size+1) / ln(2)
+
+. gen ln_cv_user_tenure = ln(cv_user_tenure+1) / ln(2)
+
+. gen ln_cv_prior_edits = ln(cv_prior_edits+1) / ln(2)
+
+. 
+. gen ln_iv_amount_talked = ln(iv_amount_talked+1) / ln(2)
+
+. gen ln_iv_amount_talking = ln(iv_amount_talking+1) / ln(2)
+
+. gen ln_iv_member_talked = ln(iv_member_talked+1) / ln(2)
+
+. gen ln_iv_member_talking = ln(iv_member_talking+1) / ln(2)
+
+. gen ln_iv_max_talked = ln(iv_max_talked+1) / ln(2)
+
+. gen ln_iv_max_talking = ln(iv_max_talking+1) / ln(2)
+
+. 
+. ** standarize all the control and independent variables
+. egen lns_cv_wp_age = std(ln_cv_wp_age)
+
+. egen lns_cv_workload = std(ln_cv_workload)
+
+. egen lns_cv_wp_member_size = std(ln_cv_wp_member_size)
+
+. egen lns_cv_wp_art_size = std(ln_cv_wp_art_size)
+
+. egen lns_cv_user_tenure = std(ln_cv_user_tenure)
+
+. egen lns_cv_prior_edits = std(ln_cv_prior_edits)
+
+. 
+. egen s_iv_cos_sim = std(iv_cos_sim)
+
+. 
+. egen lns_iv_amount_talked = std(ln_iv_amount_talked)
+
+. egen lns_iv_amount_talking = std(ln_iv_amount_talking)
+
+. egen lns_iv_member_talked = std(ln_iv_member_talked)
+
+. egen lns_iv_member_talking = std(ln_iv_member_talking)
+
+. egen lns_iv_max_talked = std(ln_iv_max_talked)
+
+. egen lns_iv_max_talking = std(ln_iv_max_talking)
+
+. 
+. ** regression on control variables
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -1.217e+08  
+Iteration 1:   log likelihood = -1.217e+08  
+Iteration 2:   log likelihood = -1.217e+08  
+Iteration 3:   log likelihood = -1.217e+08  
+
+Iteration 0:   log likelihood =  -62331629  
+Iteration 1:   log likelihood = -1219853.7  
+Iteration 2:   log likelihood = -1218434.2  
+Iteration 3:   log likelihood = -1218430.5  
+Iteration 4:   log likelihood = -1218430.5  
+
+Iteration 0:   log likelihood = -1218430.5  
+Iteration 1:   log likelihood =   -1178293  
+Iteration 2:   log likelihood = -1172483.1  
+Iteration 3:   log likelihood = -1172460.8  
+Iteration 4:   log likelihood = -1172460.8  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -45000475  
+Iteration 1:   log likelihood =   -2557271  (not concave)
+Iteration 2:   log likelihood = -1633875.1  
+Iteration 3:   log likelihood = -1304201.5  (not concave)
+Iteration 4:   log likelihood = -1203687.8  (not concave)
+Iteration 5:   log likelihood = -1158907.7  
+Iteration 6:   log likelihood = -1158557.2  
+Iteration 7:   log likelihood = -1158271.8  
+Iteration 8:   log likelihood = -1158269.6  
+Iteration 9:   log likelihood = -1158269.6  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(6)      =   49877.08
+Log likelihood  = -1158269.6                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_productivity |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8875032   .0036213   -29.25   0.000     .8804339    .8946292
+      lns_cv_workload |   .5894129    .002262  -137.75   0.000     .5849961     .593863
+lns_cv_wp_member_size |   .9592069   .0046285    -8.63   0.000      .950178    .9683215
+   lns_cv_wp_art_size |   1.392274   .0057679    79.88   0.000     1.381015    1.403625
+   lns_cv_user_tenure |   .8732934   .0030861   -38.34   0.000     .8672656    .8793631
+   lns_cv_prior_edits |   2.349164   .0111394   180.11   0.000     2.327432    2.371099
+                _cons |   .1653805   .0004831  -616.04   0.000     .1644364    .1663301
+----------------------+----------------------------------------------------------------
+                /ln_r |  -1.162179   .0357976                     -1.232341   -1.092017
+                /ln_s |   2.330763   .0894056                      2.155532    2.505995
+----------------------+----------------------------------------------------------------
+                    r |    .312804   .0111976                      .2916092    .3355392
+                    s |   10.28579   .9196066                      8.632477    12.25575
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 2.8e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_c
+> v_user_tenure lns_cv_prior_edits, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -6901556.3  
+Iteration 1:   log likelihood = -6899187.2  
+Iteration 2:   log likelihood = -6899185.2  
+Iteration 3:   log likelihood = -6899185.2  
+
+Iteration 0:   log likelihood =   -4049865  
+Iteration 1:   log likelihood = -868766.08  
+Iteration 2:   log likelihood = -758346.89  
+Iteration 3:   log likelihood = -758298.67  
+Iteration 4:   log likelihood = -758298.67  
+
+Iteration 0:   log likelihood = -758298.67  
+Iteration 1:   log likelihood = -720246.13  
+Iteration 2:   log likelihood = -711492.64  
+Iteration 3:   log likelihood = -711427.84  
+Iteration 4:   log likelihood = -711427.82  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -2884638.6  
+Iteration 1:   log likelihood = -1014274.4  (not concave)
+Iteration 2:   log likelihood = -736286.72  (not concave)
+Iteration 3:   log likelihood =    -710503  
+Iteration 4:   log likelihood = -708509.76  
+Iteration 5:   log likelihood = -706013.49  (not concave)
+Iteration 6:   log likelihood = -704867.72  
+Iteration 7:   log likelihood = -704855.53  
+Iteration 8:   log likelihood = -704855.44  
+Iteration 9:   log likelihood = -704855.44  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(6)      =   79886.05
+Log likelihood  = -704855.44                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+     dv_communication |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8844656   .0040871   -26.57   0.000     .8764911    .8925126
+      lns_cv_workload |   .9873131   .0037236    -3.39   0.001      .980042    .9946382
+lns_cv_wp_member_size |   1.445421   .0073067    72.88   0.000     1.431171    1.459813
+   lns_cv_wp_art_size |   .9784342   .0032859    -6.49   0.000     .9720152    .9848956
+   lns_cv_user_tenure |   .6848024   .0029512   -87.86   0.000     .6790426    .6906111
+   lns_cv_prior_edits |   3.152667   .0180952   200.06   0.000       3.1174    3.188334
+                _cons |   .1544754   .0005467  -527.70   0.000     .1534075    .1555507
+----------------------+----------------------------------------------------------------
+                /ln_r |   .5470739   .0470099                      .4549362    .6392116
+                /ln_s |   3.769309   .0638903                      3.644086    3.894532
+----------------------+----------------------------------------------------------------
+                    r |   1.728189    .081242                      1.576073    1.894986
+                    s |   43.35009   2.769652                       38.2478    49.13304
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.3e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_us
+> er_tenure lns_cv_prior_edits, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =  -35277969  
+Iteration 1:   log likelihood =  -35269130  
+Iteration 2:   log likelihood =  -35269126  
+Iteration 3:   log likelihood =  -35269126  
+
+Iteration 0:   log likelihood =  -14613670  
+Iteration 1:   log likelihood = -844455.17  
+Iteration 2:   log likelihood = -826717.98  
+Iteration 3:   log likelihood =  -824440.2  
+Iteration 4:   log likelihood =    -824436  
+Iteration 5:   log likelihood =    -824436  
+
+Iteration 0:   log likelihood =    -824436  
+Iteration 1:   log likelihood = -796786.48  
+Iteration 2:   log likelihood = -793266.56  
+Iteration 3:   log likelihood = -793255.28  
+Iteration 4:   log likelihood = -793255.28  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -11388391  
+Iteration 1:   log likelihood = -1291110.4  (not concave)
+Iteration 2:   log likelihood = -896125.48  (not concave)
+Iteration 3:   log likelihood = -787552.91  
+Iteration 4:   log likelihood = -784448.23  
+Iteration 5:   log likelihood = -784242.91  
+Iteration 6:   log likelihood = -784196.64  
+Iteration 7:   log likelihood =  -784196.6  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(6)      =   33205.39
+Log likelihood  =  -784196.6                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+         dv_work_comm |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8362631   .0039664   -37.70   0.000     .8285251    .8440733
+      lns_cv_workload |     .67996   .0029691   -88.33   0.000     .6741655    .6858043
+lns_cv_wp_member_size |   .9836027   .0055421    -2.93   0.003     .9728002    .9945252
+   lns_cv_wp_art_size |   1.386569   .0069007    65.67   0.000     1.373109     1.40016
+   lns_cv_user_tenure |    .868809   .0036619   -33.37   0.000     .8616614    .8760159
+   lns_cv_prior_edits |   2.168043   .0119688   140.17   0.000     2.144711    2.191629
+                _cons |   .1184094    .000421  -600.14   0.000     .1175872    .1192374
+----------------------+----------------------------------------------------------------
+                /ln_r |  -.9422971   .0382597                     -1.017285   -.8673095
+                /ln_s |   2.074395   .0872223                      1.903442    2.245348
+----------------------+----------------------------------------------------------------
+                    r |   .3897316    .014911                      .3615754    .4200803
+                    s |   7.959729   .6942659                       6.70895    9.443697
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.8e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -6907531.9  
+Iteration 1:   log likelihood = -6907308.1  
+Iteration 2:   log likelihood = -6907308.1  
+
+Iteration 0:   log likelihood = -2388159.6  
+Iteration 1:   log likelihood = -840110.21  
+Iteration 2:   log likelihood = -826080.09  
+Iteration 3:   log likelihood = -825797.56  
+Iteration 4:   log likelihood = -825797.49  
+
+Iteration 0:   log likelihood = -825797.49  
+Iteration 1:   log likelihood = -824125.62  
+Iteration 2:   log likelihood = -824117.36  
+Iteration 3:   log likelihood = -824117.36  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -1971131.1  
+Iteration 1:   log likelihood = -1403009.7  (not concave)
+Iteration 2:   log likelihood = -944389.88  (not concave)
+Iteration 3:   log likelihood = -809653.71  (not concave)
+Iteration 4:   log likelihood = -791371.46  
+Iteration 5:   log likelihood = -789249.92  
+Iteration 6:   log likelihood = -789238.14  
+Iteration 7:   log likelihood = -789238.12  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(6)      =   11360.66
+Log likelihood  = -789238.12                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_coordination |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   1.037318    .003397    11.19   0.000     1.030681    1.043997
+      lns_cv_workload |   .9238713   .0027375   -26.72   0.000     .9185215    .9292522
+lns_cv_wp_member_size |   .7743743   .0028659   -69.09   0.000     .7687775    .7800117
+   lns_cv_wp_art_size |   1.016201   .0026995     6.05   0.000     1.010924    1.021506
+   lns_cv_user_tenure |   .9632611   .0027621   -13.05   0.000     .9578627      .96869
+   lns_cv_prior_edits |   1.123856   .0040922    32.07   0.000     1.115864    1.131905
+                _cons |   .5003075   .0012349  -280.58   0.000      .497893    .5027337
+----------------------+----------------------------------------------------------------
+                /ln_r |   1.077824   .0400926                       .999244    1.156404
+                /ln_s |   3.070431   .0453998                      2.981449    3.159413
+----------------------+----------------------------------------------------------------
+                    r |   2.938279   .1178031                      2.716228    3.178483
+                    s |   21.55119   .9784203                      19.71636    23.55677
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 7.0e+04              Prob >= chibar2 = 0.000
+
+. 
+. 
+. ** check correlations between transferred IVs and CVs
+. corr lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_user_tenure lns_cv
+> _prior_edits s_iv_cos_sim lns_iv_amount_talked lns_iv_amount_talking
+(obs=271,181)
+
+             | lns_c~ge lns_cv~d lns_cv.. lns_cv.. lns_c~re lns_cv~s s_iv_c~m lns_iv.. lns_iv..
+-------------+---------------------------------------------------------------------------------
+lns_cv_wp~ge |   1.0000
+lns_cv_wor~d |   0.1029   1.0000
+lns_c~r_size |   0.7407  -0.1146   1.0000
+lns_c~t_size |   0.2663  -0.1184   0.4334   1.0000
+lns_cv_use~e |   0.1713   0.5334   0.0232  -0.0373   1.0000
+lns_cv_pri~s |   0.0560   0.7556  -0.0919  -0.0726   0.7400   1.0000
+s_iv_cos_sim |  -0.0466  -0.0285  -0.0769   0.0294   0.1364   0.1576   1.0000
+lns_iv_amo~d |   0.2793   0.4263   0.2713   0.1011   0.4080   0.5278   0.0555   1.0000
+lns_iv_amo~g |   0.2959   0.5067   0.2704   0.0870   0.4290   0.5914   0.0311   0.7881   1.0000
+
+
+. 
+. ** generate IV interaction terms
+. gen cosim_amtlked = s_iv_cos_sim*lns_iv_amount_talked
+
+. gen cosim_amtlking = s_iv_cos_sim*lns_iv_amount_talking
+
+. gen cosim_mbrtlked = s_iv_cos_sim*lns_iv_member_talked
+
+. gen cosim_mbrtlking = s_iv_cos_sim*lns_iv_member_talking
+
+. gen cosim_maxtlked = s_iv_cos_sim*lns_iv_max_talked
+
+. gen cosim_maxtlking = s_iv_cos_sim*lns_iv_max_talking
+
+. 
+. 
+. ** regression with IV interaction terms - pairs of amounts of talks
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlkin
+> g cosim_amtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -2.972e+08  
+Iteration 1:   log likelihood = -1.947e+08  
+Iteration 2:   log likelihood = -1.290e+08  
+Iteration 3:   log likelihood = -1.205e+08  
+Iteration 4:   log likelihood = -1.177e+08  
+Iteration 5:   log likelihood = -1.173e+08  
+Iteration 6:   log likelihood = -1.173e+08  
+Iteration 7:   log likelihood = -1.173e+08  
+Iteration 8:   log likelihood = -1.173e+08  
+
+Iteration 0:   log likelihood =  -62331629  
+Iteration 1:   log likelihood = -1219853.7  
+Iteration 2:   log likelihood = -1218434.2  
+Iteration 3:   log likelihood = -1218430.5  
+Iteration 4:   log likelihood = -1218430.5  
+
+Iteration 0:   log likelihood = -1218430.5  
+Iteration 1:   log likelihood = -1179539.5  
+Iteration 2:   log likelihood = -1170481.8  
+Iteration 3:   log likelihood = -1169851.6  
+Iteration 4:   log likelihood = -1169809.3  
+Iteration 5:   log likelihood = -1169809.3  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -44228841  
+Iteration 1:   log likelihood = -2852802.4  (not concave)
+Iteration 2:   log likelihood = -1879465.2  (not concave)
+Iteration 3:   log likelihood = -1210540.7  
+Iteration 4:   log likelihood = -1178401.5  
+Iteration 5:   log likelihood = -1156296.3  
+Iteration 6:   log likelihood = -1155518.9  
+Iteration 7:   log likelihood = -1155484.6  
+Iteration 8:   log likelihood = -1155484.2  
+Iteration 9:   log likelihood = -1155484.2  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   54479.09
+Log likelihood  = -1155484.2                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_productivity |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8792823   .0035879   -31.53   0.000     .8722782    .8863426
+      lns_cv_workload |   .5993737   .0023878  -128.49   0.000      .594712    .6040719
+lns_cv_wp_member_size |   .9401516   .0046982   -12.35   0.000     .9309883    .9494051
+   lns_cv_wp_art_size |   1.384184   .0057392    78.41   0.000     1.372981    1.395479
+   lns_cv_user_tenure |   .8733945   .0030889   -38.28   0.000     .8673612    .8794697
+   lns_cv_prior_edits |   2.171889   .0111018   151.73   0.000     2.150239    2.193758
+ lns_iv_amount_talked |   1.072881   .0039315    19.20   0.000     1.065203    1.080614
+lns_iv_amount_talking |   1.032203   .0041126     7.96   0.000     1.024174    1.040295
+         s_iv_cos_sim |    1.16816   .0026041    69.72   0.000     1.163067    1.173275
+       cosim_amtlking |   1.009193   .0039869     2.32   0.021     1.001409    1.017037
+        cosim_amtlked |   .9935615   .0038177    -1.68   0.093      .986107    1.001072
+                _cons |   .1655776    .000486  -612.69   0.000     .1646279    .1665329
+----------------------+----------------------------------------------------------------
+                /ln_r |  -1.155737   .0358265                     -1.225956   -1.085519
+                /ln_s |   2.324901   .0891512                      2.150168    2.499634
+----------------------+----------------------------------------------------------------
+                    r |   .3148253   .0112791                       .293477    .3377266
+                    s |   10.22567   .9116309                      8.586302    12.17804
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 2.9e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_c
+> v_user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlki
+> ng cosim_amtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =  -11104671  
+Iteration 1:   log likelihood = -8088787.4  
+Iteration 2:   log likelihood = -5733951.5  
+Iteration 3:   log likelihood = -5431661.2  
+Iteration 4:   log likelihood = -5335246.8  
+Iteration 5:   log likelihood = -5327331.5  
+Iteration 6:   log likelihood = -5327259.7  
+Iteration 7:   log likelihood = -5327259.7  
+
+Iteration 0:   log likelihood =   -4049865  
+Iteration 1:   log likelihood = -868766.08  
+Iteration 2:   log likelihood = -758346.89  
+Iteration 3:   log likelihood = -758298.67  
+Iteration 4:   log likelihood = -758298.67  
+
+Iteration 0:   log likelihood = -758298.67  
+Iteration 1:   log likelihood = -711383.61  
+Iteration 2:   log likelihood = -696985.25  
+Iteration 3:   log likelihood = -695754.05  
+Iteration 4:   log likelihood = -695751.55  
+Iteration 5:   log likelihood = -695751.55  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -2448979.4  
+Iteration 1:   log likelihood = -1405122.6  (not concave)
+Iteration 2:   log likelihood = -810108.49  (not concave)
+Iteration 3:   log likelihood = -703837.97  
+Iteration 4:   log likelihood =  -693485.3  (not concave)
+Iteration 5:   log likelihood =  -690473.6  
+Iteration 6:   log likelihood = -690117.97  
+Iteration 7:   log likelihood = -690105.54  
+Iteration 8:   log likelihood = -690105.48  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =  144177.80
+Log likelihood  = -690105.48                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+     dv_communication |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8458034    .003907   -36.25   0.000     .8381804    .8534956
+      lns_cv_workload |   .9147006   .0036053   -22.62   0.000     .9076616    .9217942
+lns_cv_wp_member_size |   1.178266   .0061617    31.37   0.000     1.166251    1.190405
+   lns_cv_wp_art_size |   .9785243   .0033061    -6.43   0.000     .9720659    .9850255
+   lns_cv_user_tenure |   .6928098    .003007   -84.56   0.000     .6869412    .6987286
+   lns_cv_prior_edits |   2.179292   .0133835   126.85   0.000     2.153218    2.205682
+ lns_iv_amount_talked |   .9697366    .002902   -10.27   0.000     .9640654    .9754412
+lns_iv_amount_talking |    1.76497   .0065361   153.42   0.000     1.752206    1.777827
+         s_iv_cos_sim |   1.085931   .0032726    27.35   0.000     1.079536    1.092364
+       cosim_amtlking |   1.017961    .003842     4.72   0.000     1.010459    1.025519
+        cosim_amtlked |   .9940519   .0037152    -1.60   0.110     .9867969     1.00136
+                _cons |   .1706826   .0006038  -499.80   0.000     .1695033      .17187
+----------------------+----------------------------------------------------------------
+                /ln_r |   .8437671   .0498153                      .7461309    .9414034
+                /ln_s |   4.042743   .0645273                      3.916272    4.169214
+----------------------+----------------------------------------------------------------
+                    r |   2.325109   .1158261                      2.108825    2.563577
+                    s |   56.98243   3.676921                      50.21289    64.66461
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.1e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_us
+> er_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlking c
+> osim_amtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =  -36672356  
+Iteration 1:   log likelihood =  -34957973  
+Iteration 2:   log likelihood =  -34635228  
+Iteration 3:   log likelihood =  -34577466  
+Iteration 4:   log likelihood =  -34576038  
+Iteration 5:   log likelihood =  -34576034  
+Iteration 6:   log likelihood =  -34576034  
+
+Iteration 0:   log likelihood =  -14613670  
+Iteration 1:   log likelihood = -844455.17  
+Iteration 2:   log likelihood = -826717.98  
+Iteration 3:   log likelihood =  -824440.2  
+Iteration 4:   log likelihood =    -824436  
+Iteration 5:   log likelihood =    -824436  
+
+Iteration 0:   log likelihood =    -824436  
+Iteration 1:   log likelihood = -796552.83  
+Iteration 2:   log likelihood = -791278.33  
+Iteration 3:   log likelihood = -791096.58  
+Iteration 4:   log likelihood = -791094.04  
+Iteration 5:   log likelihood = -791094.04  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -11240983  
+Iteration 1:   log likelihood = -1331327.4  (not concave)
+Iteration 2:   log likelihood =  -920982.6  
+Iteration 3:   log likelihood = -786319.82  
+Iteration 4:   log likelihood = -782502.46  
+Iteration 5:   log likelihood = -782359.96  
+Iteration 6:   log likelihood = -781939.91  
+Iteration 7:   log likelihood = -781899.15  
+Iteration 8:   log likelihood = -781898.26  
+Iteration 9:   log likelihood = -781898.25  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   37686.59
+Log likelihood  = -781898.25                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+         dv_work_comm |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8264314     .00393   -40.09   0.000     .8187646    .8341701
+      lns_cv_workload |   .6755837   .0030853   -85.88   0.000     .6695637    .6816579
+lns_cv_wp_member_size |   .9382538   .0054692   -10.93   0.000     .9275953    .9490348
+   lns_cv_wp_art_size |   1.375214   .0068551    63.92   0.000     1.361844    1.388716
+   lns_cv_user_tenure |   .8771627   .0037154   -30.94   0.000     .8699107     .884475
+   lns_cv_prior_edits |   1.916601   .0114354   109.03   0.000     1.894319    1.939146
+ lns_iv_amount_talked |   1.030682   .0042225     7.38   0.000      1.02244    1.038992
+lns_iv_amount_talking |   1.153958   .0051831    31.88   0.000     1.143844    1.164162
+         s_iv_cos_sim |    1.13855   .0030249    48.84   0.000     1.132636    1.144494
+       cosim_amtlking |   1.007839   .0044917     1.75   0.080      .999074    1.016681
+        cosim_amtlked |   .9871763   .0043835    -2.91   0.004     .9786221    .9958052
+                _cons |   .1183319   .0004228  -597.37   0.000     .1175062    .1191634
+----------------------+----------------------------------------------------------------
+                /ln_r |  -.9446103   .0381356                     -1.019355   -.8698659
+                /ln_s |   2.045213    .086713                      1.875258    2.215167
+----------------------+----------------------------------------------------------------
+                    r |   .3888311   .0148283                      .3608277    .4190077
+                    s |   7.730802   .6703614                      6.522502    9.162939
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.8e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits lns_iv_amount_talked lns_iv_amount_talking s_iv_cos_sim cosim_amtlkin
+> g cosim_amtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =   -6809850  
+Iteration 1:   log likelihood = -6809443.3  
+Iteration 2:   log likelihood = -6809443.2  
+
+Iteration 0:   log likelihood = -2388159.6  
+Iteration 1:   log likelihood = -840110.21  
+Iteration 2:   log likelihood = -826080.09  
+Iteration 3:   log likelihood = -825797.56  
+Iteration 4:   log likelihood = -825797.49  
+
+Iteration 0:   log likelihood = -825797.49  
+Iteration 1:   log likelihood = -823798.14  
+Iteration 2:   log likelihood = -823785.43  
+Iteration 3:   log likelihood = -823785.43  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -1966692.8  
+Iteration 1:   log likelihood =   -1429821  (not concave)
+Iteration 2:   log likelihood =  -969049.6  (not concave)
+Iteration 3:   log likelihood = -810822.46  (not concave)
+Iteration 4:   log likelihood = -790657.61  
+Iteration 5:   log likelihood = -788842.53  
+Iteration 6:   log likelihood = -788834.65  
+Iteration 7:   log likelihood = -788834.64  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   12174.79
+Log likelihood  = -788834.64                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_coordination |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   1.033715   .0033895    10.11   0.000     1.027093     1.04038
+      lns_cv_workload |   .9270238   .0028571   -24.59   0.000     .9214408    .9326406
+lns_cv_wp_member_size |   .7650655   .0029294   -69.94   0.000     .7593455    .7708286
+   lns_cv_wp_art_size |    1.01367   .0026978     5.10   0.000     1.008396    1.018972
+   lns_cv_user_tenure |   .9649847   .0027758   -12.39   0.000     .9595596    .9704406
+   lns_cv_prior_edits |   1.082546   .0042914    20.01   0.000     1.074168     1.09099
+ lns_iv_amount_talked |   1.010014   .0031117     3.23   0.001     1.003933    1.016131
+lns_iv_amount_talking |   1.041631   .0034772    12.22   0.000     1.034838    1.048469
+         s_iv_cos_sim |   1.044018   .0021452    20.96   0.000     1.039822    1.048231
+       cosim_amtlking |   1.025583   .0039126     6.62   0.000     1.017943    1.033281
+        cosim_amtlked |    .990513   .0037159    -2.54   0.011     .9832567    .9978228
+                _cons |   .5015115   .0012404  -279.03   0.000     .4990863    .5039486
+----------------------+----------------------------------------------------------------
+                /ln_r |    1.08093   .0400864                      1.002362    1.159498
+                /ln_s |   3.067607   .0453782                      2.978667    3.156547
+----------------------+----------------------------------------------------------------
+                    r |    2.94742   .1181514                      2.724711    3.188333
+                    s |   21.49042   .9751969                       19.6616    23.48934
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 7.0e+04              Prob >= chibar2 = 0.000
+
+. 
+. ** regression with IV interaction terms - pairs of member of talks
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlki
+> ng cosim_mbrtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -2.637e+08  
+Iteration 1:   log likelihood = -1.742e+08  
+Iteration 2:   log likelihood = -1.374e+08  
+Iteration 3:   log likelihood = -1.207e+08  
+Iteration 4:   log likelihood = -1.180e+08  
+Iteration 5:   log likelihood = -1.174e+08  
+Iteration 6:   log likelihood = -1.174e+08  
+Iteration 7:   log likelihood = -1.174e+08  
+Iteration 8:   log likelihood = -1.174e+08  
+
+Iteration 0:   log likelihood =  -62331629  
+Iteration 1:   log likelihood = -1219853.7  
+Iteration 2:   log likelihood = -1218434.2  
+Iteration 3:   log likelihood = -1218430.5  
+Iteration 4:   log likelihood = -1218430.5  
+
+Iteration 0:   log likelihood = -1218430.5  
+Iteration 1:   log likelihood = -1178889.4  
+Iteration 2:   log likelihood = -1170306.3  
+Iteration 3:   log likelihood = -1169873.1  
+Iteration 4:   log likelihood = -1169866.8  
+Iteration 5:   log likelihood = -1169866.8  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -44244293  
+Iteration 1:   log likelihood = -2814236.5  (not concave)
+Iteration 2:   log likelihood = -1863616.7  (not concave)
+Iteration 3:   log likelihood = -1207173.8  
+Iteration 4:   log likelihood = -1177523.5  
+Iteration 5:   log likelihood = -1156133.8  
+Iteration 6:   log likelihood = -1155551.5  
+Iteration 7:   log likelihood = -1155526.1  
+Iteration 8:   log likelihood = -1155525.9  
+Iteration 9:   log likelihood = -1155525.9  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   54551.45
+Log likelihood  = -1155525.9                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_productivity |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8830932   .0036061   -30.45   0.000     .8760535    .8901894
+      lns_cv_workload |   .5994881   .0024013  -127.74   0.000        .5948    .6042131
+lns_cv_wp_member_size |   .9346686    .004739   -13.33   0.000     .9254263    .9440033
+   lns_cv_wp_art_size |   1.382535   .0057298    78.16   0.000     1.371351    1.393811
+   lns_cv_user_tenure |   .8706087   .0030807   -39.16   0.000     .8645915    .8766679
+   lns_cv_prior_edits |      2.178    .011132   152.30   0.000      2.15629    2.199928
+ lns_iv_member_talked |    1.07385   .0039523    19.36   0.000     1.066131    1.081624
+lns_iv_member_talking |   1.028545   .0041449     6.98   0.000     1.020453    1.036701
+         s_iv_cos_sim |   1.172718   .0026625    70.18   0.000     1.167511    1.177947
+      cosim_mbrtlking |    1.01749   .0043951     4.01   0.000     1.008912    1.026141
+       cosim_mbrtlked |   .9956084   .0040445    -1.08   0.279     .9877128    1.003567
+                _cons |   .1656251   .0004862  -612.54   0.000     .1646749    .1665807
+----------------------+----------------------------------------------------------------
+                /ln_r |  -1.155375   .0358173                     -1.225575   -1.085174
+                /ln_s |     2.3268   .0890973                      2.152173    2.501428
+----------------------+----------------------------------------------------------------
+                    r |   .3149395   .0112803                      .2935887    .3378429
+                    s |   10.24511   .9128112                      8.603531     12.1999
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 2.9e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_c
+> v_user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlk
+> ing cosim_mbrtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -7911939.4  
+Iteration 1:   log likelihood = -6113053.6  
+Iteration 2:   log likelihood = -6026828.5  
+Iteration 3:   log likelihood = -6023017.2  
+Iteration 4:   log likelihood = -6023005.6  
+Iteration 5:   log likelihood = -6023005.6  
+
+Iteration 0:   log likelihood =   -4049865  
+Iteration 1:   log likelihood = -868766.08  
+Iteration 2:   log likelihood = -758346.89  
+Iteration 3:   log likelihood = -758298.67  
+Iteration 4:   log likelihood = -758298.67  
+
+Iteration 0:   log likelihood = -758298.67  
+Iteration 1:   log likelihood = -713565.19  
+Iteration 2:   log likelihood = -700489.96  
+Iteration 3:   log likelihood = -699822.16  
+Iteration 4:   log likelihood = -699820.19  
+Iteration 5:   log likelihood = -699820.19  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -2613167.9  
+Iteration 1:   log likelihood = -1063071.1  (not concave)
+Iteration 2:   log likelihood = -1008702.7  (not concave)
+Iteration 3:   log likelihood = -771800.52  (not concave)
+Iteration 4:   log likelihood = -712135.21  
+Iteration 5:   log likelihood = -695768.31  
+Iteration 6:   log likelihood = -694661.05  
+Iteration 7:   log likelihood = -694520.08  
+Iteration 8:   log likelihood = -694518.81  
+Iteration 9:   log likelihood = -694518.81  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =  126719.55
+Log likelihood  = -694518.81                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+     dv_communication |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8814487   .0040834   -27.24   0.000     .8734817    .8894884
+      lns_cv_workload |   .9091002   .0036128   -23.98   0.000     .9020467    .9162089
+lns_cv_wp_member_size |   1.162339   .0062596    27.93   0.000     1.150135    1.174673
+   lns_cv_wp_art_size |   .9753565   .0032751    -7.43   0.000     .9689585    .9817967
+   lns_cv_user_tenure |   .6858593   .0029826   -86.71   0.000     .6800384    .6917301
+   lns_cv_prior_edits |   2.321659   .0142304   137.42   0.000     2.293935    2.349719
+ lns_iv_member_talked |   .9717319   .0029264    -9.52   0.000      .966013    .9774846
+lns_iv_member_talking |   1.605542   .0059258   128.28   0.000     1.593969    1.617198
+         s_iv_cos_sim |   1.098766   .0033216    31.16   0.000     1.092275    1.105295
+      cosim_mbrtlking |   1.042725   .0045931     9.50   0.000     1.033761    1.051766
+       cosim_mbrtlked |   .9876276   .0042006    -2.93   0.003     .9794289     .995895
+                _cons |   .1658747   .0005849  -509.50   0.000     .1647323     .167025
+----------------------+----------------------------------------------------------------
+                /ln_r |   .7639647   .0494458                      .6670528    .8608766
+                /ln_s |   4.029319   .0649411                      3.902036    4.156601
+----------------------+----------------------------------------------------------------
+                    r |   2.146771   .1061487                      1.948486    2.365233
+                    s |    56.2226   3.651158                      49.50316    63.85411
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.1e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_us
+> er_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlking 
+> cosim_mbrtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =  -36997747  
+Iteration 1:   log likelihood =  -35009319  
+Iteration 2:   log likelihood =  -34658552  
+Iteration 3:   log likelihood =  -34602020  
+Iteration 4:   log likelihood =  -34601254  
+Iteration 5:   log likelihood =  -34601254  
+
+Iteration 0:   log likelihood =  -14613670  
+Iteration 1:   log likelihood = -844455.17  
+Iteration 2:   log likelihood = -826717.98  
+Iteration 3:   log likelihood =  -824440.2  
+Iteration 4:   log likelihood =    -824436  
+Iteration 5:   log likelihood =    -824436  
+
+Iteration 0:   log likelihood =    -824436  
+Iteration 1:   log likelihood = -796550.97  
+Iteration 2:   log likelihood = -791369.32  
+Iteration 3:   log likelihood = -791250.37  
+Iteration 4:   log likelihood = -791249.75  
+Iteration 5:   log likelihood = -791249.75  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -11253069  
+Iteration 1:   log likelihood = -1321525.5  (not concave)
+Iteration 2:   log likelihood = -917532.76  
+Iteration 3:   log likelihood = -786131.66  
+Iteration 4:   log likelihood = -782638.41  
+Iteration 5:   log likelihood = -782558.36  
+Iteration 6:   log likelihood = -782080.89  
+Iteration 7:   log likelihood = -782025.94  
+Iteration 8:   log likelihood = -782024.33  
+Iteration 9:   log likelihood = -782024.32  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   37524.23
+Log likelihood  = -782024.32                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+         dv_work_comm |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8322089   .0039597   -38.60   0.000     .8244841    .8400062
+      lns_cv_workload |   .6737389   .0030927   -86.03   0.000     .6677045    .6798279
+lns_cv_wp_member_size |   .9299868    .005508   -12.26   0.000     .9192537    .9408453
+   lns_cv_wp_art_size |   1.371514   .0068336    63.40   0.000     1.358185    1.384973
+   lns_cv_user_tenure |    .873693   .0037003   -31.88   0.000     .8664706    .8809756
+   lns_cv_prior_edits |   1.928319   .0114964   110.14   0.000     1.905917    1.950984
+ lns_iv_member_talked |   1.023492   .0041799     5.69   0.000     1.015332    1.031717
+lns_iv_member_talking |   1.154346   .0052368    31.64   0.000     1.144127    1.164655
+         s_iv_cos_sim |   1.145073    .003072    50.50   0.000     1.139068     1.15111
+      cosim_mbrtlking |   1.025738    .005002     5.21   0.000     1.015981    1.035589
+       cosim_mbrtlked |   .9831824   .0046193    -3.61   0.000     .9741703    .9922779
+                _cons |   .1184147    .000423  -597.32   0.000     .1175886    .1192466
+----------------------+----------------------------------------------------------------
+                /ln_r |  -.9437121   .0381007                     -1.018388   -.8690361
+                /ln_s |   2.049284   .0865576                      1.879634    2.218933
+----------------------+----------------------------------------------------------------
+                    r |   .3891805   .0148281                      .3611766    .4193556
+                    s |   7.762338   .6718892                      6.551106    9.197515
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.8e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits lns_iv_member_talked lns_iv_member_talking s_iv_cos_sim cosim_mbrtlki
+> ng cosim_mbrtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -6810377.1  
+Iteration 1:   log likelihood = -6809973.5  
+Iteration 2:   log likelihood = -6809973.4  
+
+Iteration 0:   log likelihood = -2388159.6  
+Iteration 1:   log likelihood = -840110.21  
+Iteration 2:   log likelihood = -826080.09  
+Iteration 3:   log likelihood = -825797.56  
+Iteration 4:   log likelihood = -825797.49  
+
+Iteration 0:   log likelihood = -825797.49  
+Iteration 1:   log likelihood = -823804.13  
+Iteration 2:   log likelihood =    -823792  
+Iteration 3:   log likelihood =    -823792  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -1966853.1  
+Iteration 1:   log likelihood = -1429994.2  (not concave)
+Iteration 2:   log likelihood = -969290.65  (not concave)
+Iteration 3:   log likelihood = -810865.22  (not concave)
+Iteration 4:   log likelihood = -790695.61  
+Iteration 5:   log likelihood = -788857.52  
+Iteration 6:   log likelihood = -788849.63  
+Iteration 7:   log likelihood = -788849.62  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   12134.88
+Log likelihood  = -788849.62                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_coordination |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |    1.03552   .0033966    10.64   0.000     1.028884    1.042199
+      lns_cv_workload |   .9263739   .0028695   -24.69   0.000     .9207668    .9320152
+lns_cv_wp_member_size |   .7634176   .0029691   -69.41   0.000     .7576203    .7692592
+   lns_cv_wp_art_size |   1.013212   .0026964     4.93   0.000     1.007941    1.018511
+   lns_cv_user_tenure |   .9637552   .0027721   -12.83   0.000     .9583372    .9692037
+   lns_cv_prior_edits |     1.0853   .0042966    20.68   0.000     1.076912    1.093754
+ lns_iv_member_talked |   1.011623   .0031178     3.75   0.000      1.00553    1.017752
+lns_iv_member_talking |   1.038201   .0035009    11.12   0.000     1.031362    1.045085
+         s_iv_cos_sim |   1.048066   .0022221    22.14   0.000      1.04372     1.05243
+      cosim_mbrtlking |   1.035423   .0041722     8.64   0.000     1.027278    1.043633
+       cosim_mbrtlked |   .9885756    .003826    -2.97   0.003     .9811051    .9961029
+                _cons |    .501569   .0012405  -278.98   0.000     .4991435    .5040063
+----------------------+----------------------------------------------------------------
+                /ln_r |   1.080571   .0400887                      1.001999    1.159144
+                /ln_s |   3.067419   .0453845                      2.978467    3.156371
+----------------------+----------------------------------------------------------------
+                    r |   2.946362   .1181158                      2.723721    3.187202
+                    s |   21.48637   .9751487                      19.65765    23.48521
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 7.0e+04              Prob >= chibar2 = 0.000
+
+. 
+. ** regression with IV interaction terms - pairs of max of talks
+. xtnbreg dv_productivity lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cos
+> im_maxtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -3.248e+08  
+Iteration 1:   log likelihood = -1.946e+08  
+Iteration 2:   log likelihood = -1.493e+08  
+Iteration 3:   log likelihood = -1.233e+08  
+Iteration 4:   log likelihood = -1.189e+08  
+Iteration 5:   log likelihood = -1.176e+08  
+Iteration 6:   log likelihood = -1.174e+08  
+Iteration 7:   log likelihood = -1.174e+08  
+Iteration 8:   log likelihood = -1.174e+08  
+Iteration 9:   log likelihood = -1.174e+08  
+
+Iteration 0:   log likelihood =  -62331629  
+Iteration 1:   log likelihood = -1219853.7  
+Iteration 2:   log likelihood = -1218434.2  
+Iteration 3:   log likelihood = -1218430.5  
+Iteration 4:   log likelihood = -1218430.5  
+
+Iteration 0:   log likelihood = -1218430.5  
+Iteration 1:   log likelihood = -1179743.4  
+Iteration 2:   log likelihood =   -1170642  
+Iteration 3:   log likelihood = -1169910.1  
+Iteration 4:   log likelihood = -1169845.2  
+Iteration 5:   log likelihood = -1169844.7  
+Iteration 6:   log likelihood = -1169844.7  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -44255009  
+Iteration 1:   log likelihood = -2855883.1  (not concave)
+Iteration 2:   log likelihood = -1871653.3  (not concave)
+Iteration 3:   log likelihood = -1225783.4  
+Iteration 4:   log likelihood = -1182537.2  
+Iteration 5:   log likelihood = -1157976.1  
+Iteration 6:   log likelihood = -1155879.1  
+Iteration 7:   log likelihood =   -1155544  
+Iteration 8:   log likelihood = -1155529.1  
+Iteration 9:   log likelihood =   -1155529  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   54186.73
+Log likelihood  =   -1155529                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_productivity |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8767174   .0035783   -32.24   0.000     .8697321    .8837589
+      lns_cv_workload |    .601809   .0023792  -128.45   0.000     .5971639    .6064903
+lns_cv_wp_member_size |   .9492948   .0046877   -10.54   0.000     .9401515     .958527
+   lns_cv_wp_art_size |   1.384919   .0057444    78.51   0.000     1.373706    1.396224
+   lns_cv_user_tenure |    .874779    .003091   -37.86   0.000     .8687417    .8808583
+   lns_cv_prior_edits |    2.18275   .0110882   153.66   0.000     2.161125    2.204591
+    lns_iv_max_talked |   1.064673    .003507    19.02   0.000     1.057821    1.071568
+   lns_iv_max_talking |   1.032019   .0036673     8.87   0.000     1.024856    1.039232
+         s_iv_cos_sim |   1.167037   .0025902    69.60   0.000     1.161972    1.172125
+      cosim_maxtlking |   1.007059   .0034194     2.07   0.038      1.00038    1.013784
+       cosim_maxtlked |   .9921211   .0032973    -2.38   0.017     .9856795    .9986048
+                _cons |    .165476   .0004857  -612.85   0.000     .1645267    .1664307
+----------------------+----------------------------------------------------------------
+                /ln_r |  -1.155669   .0358352                     -1.225905   -1.085434
+                /ln_s |   2.325725    .089187                      2.150922    2.500528
+----------------------+----------------------------------------------------------------
+                    r |   .3148467   .0112826                       .293492    .3377553
+                    s |    10.2341    .912748                      8.592775    12.18893
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 2.9e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_communication lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_c
+> v_user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking co
+> sim_maxtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =  -14925306  
+Iteration 1:   log likelihood = -8402968.5  
+Iteration 2:   log likelihood = -6192037.4  
+Iteration 3:   log likelihood = -5594244.8  
+Iteration 4:   log likelihood = -5479222.6  
+Iteration 5:   log likelihood = -5464957.1  
+Iteration 6:   log likelihood = -5464654.1  
+Iteration 7:   log likelihood =   -5464654  
+
+Iteration 0:   log likelihood =   -4049865  
+Iteration 1:   log likelihood = -868766.08  
+Iteration 2:   log likelihood = -758346.89  
+Iteration 3:   log likelihood = -758298.67  
+Iteration 4:   log likelihood = -758298.67  
+
+Iteration 0:   log likelihood = -758298.67  
+Iteration 1:   log likelihood = -714547.99  
+Iteration 2:   log likelihood = -698633.83  
+Iteration 3:   log likelihood = -697413.52  
+Iteration 4:   log likelihood = -697408.86  
+Iteration 5:   log likelihood = -697408.85  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -2484741.7  
+Iteration 1:   log likelihood = -1423317.5  (not concave)
+Iteration 2:   log likelihood = -1014078.1  (not concave)
+Iteration 3:   log likelihood =  -759423.5  (not concave)
+Iteration 4:   log likelihood = -705943.78  
+Iteration 5:   log likelihood = -693288.74  
+Iteration 6:   log likelihood =  -691484.3  
+Iteration 7:   log likelihood = -691193.59  
+Iteration 8:   log likelihood = -691189.11  
+Iteration 9:   log likelihood =  -691189.1  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =  143546.57
+Log likelihood  =  -691189.1                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+     dv_communication |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8271796     .00383   -40.98   0.000      .819707    .8347204
+      lns_cv_workload |   .9452703   .0036951   -14.40   0.000     .9380558    .9525403
+lns_cv_wp_member_size |   1.276223   .0065709    47.37   0.000     1.263409    1.289166
+   lns_cv_wp_art_size |   .9773308   .0033105    -6.77   0.000     .9708639    .9838408
+   lns_cv_user_tenure |   .6991068   .0030297   -82.60   0.000     .6931938    .7050702
+   lns_cv_prior_edits |   2.299284   .0139847   136.89   0.000     2.272037    2.326858
+    lns_iv_max_talked |   1.001018   .0028318     0.36   0.719     .9954835    1.006584
+   lns_iv_max_talking |   1.586862   .0050173   146.05   0.000     1.577059    1.596727
+         s_iv_cos_sim |   1.080862   .0033275    25.26   0.000      1.07436    1.087404
+      cosim_maxtlking |   1.016481   .0033605     4.94   0.000     1.009915    1.023088
+       cosim_maxtlked |   .9892982   .0033254    -3.20   0.001     .9828018    .9958374
+                _cons |   .1687882   .0005987  -501.57   0.000     .1676189    .1699658
+----------------------+----------------------------------------------------------------
+                /ln_r |   .8075921   .0491013                      .7113553    .9038289
+                /ln_s |   3.983283   .0638234                      3.858192    4.108375
+----------------------+----------------------------------------------------------------
+                    r |   2.242502   .1101098                       2.03675    2.469039
+                    s |   53.69303   3.426871                      47.37959    60.84774
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.2e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_work_comm lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv_us
+> er_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cosim_
+> maxtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood =  -38178805  
+Iteration 1:   log likelihood =  -35262321  
+Iteration 2:   log likelihood =  -34729222  
+Iteration 3:   log likelihood =  -34604339  
+Iteration 4:   log likelihood =  -34595992  
+Iteration 5:   log likelihood =  -34595955  
+Iteration 6:   log likelihood =  -34595955  
+
+Iteration 0:   log likelihood =  -14613670  
+Iteration 1:   log likelihood = -844455.17  
+Iteration 2:   log likelihood = -826717.98  
+Iteration 3:   log likelihood =  -824440.2  
+Iteration 4:   log likelihood =    -824436  
+Iteration 5:   log likelihood =    -824436  
+
+Iteration 0:   log likelihood =    -824436  
+Iteration 1:   log likelihood = -796583.14  
+Iteration 2:   log likelihood =  -791416.9  
+Iteration 3:   log likelihood = -791214.64  
+Iteration 4:   log likelihood = -791211.83  
+Iteration 5:   log likelihood = -791211.83  
+
+Fitting full model:
+
+Iteration 0:   log likelihood =  -11251582  
+Iteration 1:   log likelihood = -1332311.5  (not concave)
+Iteration 2:   log likelihood = -921039.87  
+Iteration 3:   log likelihood = -786403.87  
+Iteration 4:   log likelihood = -782628.27  
+Iteration 5:   log likelihood = -782471.35  
+Iteration 6:   log likelihood = -782065.35  
+Iteration 7:   log likelihood = -782026.31  
+Iteration 8:   log likelihood = -782025.49  
+Iteration 9:   log likelihood = -782025.49  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   37267.43
+Log likelihood  = -782025.49                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+         dv_work_comm |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   .8222897   .0039119   -41.13   0.000     .8146581    .8299928
+      lns_cv_workload |   .6825721    .003089   -84.39   0.000     .6765446    .6886533
+lns_cv_wp_member_size |   .9558515   .0055048    -7.84   0.000      .945123    .9667017
+   lns_cv_wp_art_size |   1.376552   .0068659    64.07   0.000      1.36316    1.390074
+   lns_cv_user_tenure |   .8777994   .0037138   -30.81   0.000     .8705505    .8851087
+   lns_cv_prior_edits |   1.939227     .01148   111.87   0.000     1.916857    1.961859
+    lns_iv_max_talked |   1.039285   .0038695    10.35   0.000     1.031728    1.046897
+   lns_iv_max_talking |   1.124199   .0044845    29.35   0.000     1.115444    1.133023
+         s_iv_cos_sim |   1.137127   .0030242    48.32   0.000     1.131215     1.14307
+      cosim_maxtlking |    1.00415   .0038713     1.07   0.283     .9965907    1.011766
+       cosim_maxtlked |   .9866669   .0038336    -3.45   0.001     .9791818    .9942093
+                _cons |   .1182319   .0004225  -597.42   0.000     .1174066     .119063
+----------------------+----------------------------------------------------------------
+                /ln_r |  -.9446533   .0381633                     -1.019452   -.8698547
+                /ln_s |   2.046063   .0868138                      1.875911    2.216215
+----------------------+----------------------------------------------------------------
+                    r |   .3888143   .0148384                      .3607926    .4190124
+                    s |   7.737381   .6717115                      6.526764    9.172549
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 1.8e+04              Prob >= chibar2 = 0.000
+
+. xtnbreg dv_coordination lns_cv_wp_age lns_cv_workload lns_cv_wp_member_size lns_cv_wp_art_size lns_cv
+> _user_tenure lns_cv_prior_edits lns_iv_max_talked lns_iv_max_talking s_iv_cos_sim cosim_maxtlking cos
+> im_maxtlked, irr
+
+Fitting negative binomial (constant dispersion) model:
+
+Iteration 0:   log likelihood = -6811952.3  
+Iteration 1:   log likelihood = -6811533.2  
+Iteration 2:   log likelihood = -6811532.9  
+
+Iteration 0:   log likelihood = -2388159.6  
+Iteration 1:   log likelihood = -840110.21  
+Iteration 2:   log likelihood = -826080.09  
+Iteration 3:   log likelihood = -825797.56  
+Iteration 4:   log likelihood = -825797.49  
+
+Iteration 0:   log likelihood = -825797.49  
+Iteration 1:   log likelihood = -823817.37  
+Iteration 2:   log likelihood = -823804.66  
+Iteration 3:   log likelihood = -823804.66  
+
+Fitting full model:
+
+Iteration 0:   log likelihood = -1966924.9  
+Iteration 1:   log likelihood = -1428731.3  (not concave)
+Iteration 2:   log likelihood = -968277.46  (not concave)
+Iteration 3:   log likelihood = -810830.01  (not concave)
+Iteration 4:   log likelihood = -790692.43  
+Iteration 5:   log likelihood = -788863.31  
+Iteration 6:   log likelihood = -788855.38  
+Iteration 7:   log likelihood = -788855.38  
+
+Random-effects negative binomial regression     Number of obs     =    271,181
+Group variable: nwikiproject                    Number of groups  =      1,340
+
+Random effects u_i ~ Beta                       Obs per group:
+                                                              min =          3
+                                                              avg =      202.4
+                                                              max =      5,224
+
+                                                Wald chi2(11)     =   12127.19
+Log likelihood  = -788855.38                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------------
+      dv_coordination |        IRR   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+        lns_cv_wp_age |   1.032517   .0033871     9.75   0.000       1.0259    1.039177
+      lns_cv_workload |   .9291809   .0028476   -23.97   0.000     .9236164     .934779
+lns_cv_wp_member_size |   .7683821   .0029058   -69.67   0.000     .7627079    .7740985
+   lns_cv_wp_art_size |    1.01389   .0026987     5.18   0.000     1.008615    1.019193
+   lns_cv_user_tenure |   .9652776   .0027757   -12.29   0.000     .9598527    .9707333
+   lns_cv_prior_edits |    1.08451   .0042788    20.56   0.000     1.076156    1.092928
+    lns_iv_max_talked |   1.009599   .0028398     3.40   0.001     1.004049    1.015181
+   lns_iv_max_talking |   1.037737   .0031258    12.30   0.000     1.031629    1.043882
+         s_iv_cos_sim |   1.041819   .0021133    20.20   0.000     1.037685    1.045969
+      cosim_maxtlking |   1.019844   .0033887     5.91   0.000     1.013224    1.026507
+       cosim_maxtlked |   .9923025   .0032614    -2.35   0.019     .9859308    .9987153
+                _cons |   .5014158   .0012405  -279.04   0.000     .4989904     .503853
+----------------------+----------------------------------------------------------------
+                /ln_r |   1.081005   .0400847                      1.002441     1.15957
+                /ln_s |   3.067944   .0453744                      2.979012    3.156877
+----------------------+----------------------------------------------------------------
+                    r |   2.947641   .1181552                      2.724924    3.188561
+                    s |   21.49767   .9754435                      19.66838    23.49709
+---------------------------------------------------------------------------------------
+LR test vs. pooled: chibar2(01) = 7.0e+04              Prob >= chibar2 = 0.000
+
+. 
+end of do-file
+
+. log close
+      name:  <unnamed>
+       log:  /Users/bobo/Documents/wikipedia_user_dropout/script_stata/regressions1.log
+  log type:  text
+ closed on:  17 Apr 2016, 23:00:09
+-------------------------------------------------------------------------------------------------------
